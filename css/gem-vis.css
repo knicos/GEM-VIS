@@ -1,0 +1,46 @@
+path.link {
+  fill: none;
+  stroke: #666;
+  stroke-width: 1.5px;
+}
+
+path.link.special {
+	stroke-dasharray: 2, 2;
+}
+
+path.link.blocked {
+	stroke: rgba(255,0,0,0.3);
+}
+
+circle {
+  fill: blue;
+  stroke: #222;
+  stroke-width: 1.5px;
+}
+
+.reaction > circle {
+	fill: orange;
+}
+
+.reaction.blocked > circle {
+	fill: red;
+}
+
+.metabolite.blocked > circle {
+	fill-opacity: 0.3;
+}
+
+.metabolite.dead > circle {
+	fill: red;
+}
+
+text {
+  fill: black;
+  font: 14px sans-serif;
+  pointer-events: none;
+}
+
+.metabolite.blocked > text {
+	fill-opacity: 0.3;
+}
+
