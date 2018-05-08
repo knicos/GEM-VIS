@@ -43,6 +43,7 @@ const specialMetabolites = {
 	"M_h2o_c": true,
 	"M_o2_c": true,
 	"M_nadph_c": true,
+	"M_nadp_c": true,
 	"M_co2_c": true,
 	"M_nadh_c": true,
 
@@ -144,6 +145,15 @@ MetabolicGraph.prototype.setReactions_hidemetabs = function(list) {
 	this.graphData({nodes: nodes, links: links}, 200, -300);
 }
 
+function rotate(cx, cy, x, y, angle) {
+    var radians = (Math.PI / 180) * angle,
+        cos = Math.cos(radians),
+        sin = Math.sin(radians),
+        nx = (cos * (x - cx)) + (sin * (y - cy)) + cx,
+        ny = (cos * (y - cy)) - (sin * (x - cx)) + cy;
+    return [nx, ny];
+}
+
 MetabolicGraph.prototype.setReactions_showmetabs = function(list) {
 	let reactions = [];
 	let metabs = {};
@@ -191,6 +201,7 @@ MetabolicGraph.prototype.setReactions_showmetabs = function(list) {
 			"id": x,
 			"name": x,
 			"val": 3,
+			count: 0,
 			type: "metabolite",
 			fullname: metabs[x].name,
 			data: (metabData && metabData.hasOwnProperty(x)) ? metabData[x] * mdatascale : 0,
@@ -210,6 +221,7 @@ MetabolicGraph.prototype.setReactions_showmetabs = function(list) {
 
 	// Generate colours
 	let subsys_colours = {};
+	let subsys_positions = {};
 	let sscount = 0;
 	let sscount2 = 0;
 	for (var x in this.model.subsystems) {
@@ -217,10 +229,12 @@ MetabolicGraph.prototype.setReactions_showmetabs = function(list) {
 	}
 	for (var x in this.model.subsystems) {
 		subsys_colours[x] = selectColor(sscount2,sscount);
+		subsys_positions[x] = rotate(1500,1500, 1900, 1500, ((2*Math.PI) / sscount) * sscount2);
 		sscount2++;
 	}
 
 	var datascale = 10.0 / maxdata;
+	let maxcount = 0;
 
 	for (var i=0; i<reactions.length; i++) {
 		let data = (reactData && reactData.hasOwnProperty(reactions[i].id)) ? reactData[reactions[i].id] : 0
@@ -228,7 +242,17 @@ MetabolicGraph.prototype.setReactions_showmetabs = function(list) {
 		let blocked = Math.abs(data) < 0.00000000000001;
 		let missing = reactData && !reactData.hasOwnProperty(reactions[i].id);
 		let col = subsys_colours[reactions[i].subsystem];
-		nodes[reactions[i].id] = {origin: reactions[i], id: reactions[i].id, colour: col, name: reactions[i].name, data: data, val: value, type: "reaction"};
+		let pos = subsys_positions[reactions[i].subsystem];
+		nodes[reactions[i].id] = {
+			origin: reactions[i],
+			id: reactions[i].id,
+			colour: col,
+			name: reactions[i].name,
+			data: data,
+			val: value,
+			type: "reaction",
+			x: pos[0], y: pos[1]
+		};
 
 		for (var x in reactions[i].inputs) {
 			if (specialMetabolites.hasOwnProperty(x)) {
@@ -236,6 +260,8 @@ MetabolicGraph.prototype.setReactions_showmetabs = function(list) {
 				nodes[x+reactions[i].id] = {"id": x+reactions[i].id, "name": x, "val": 3, type: "metabolite", blocked: blocked, data: 0.0};
 				links.push({origin: reactions[i], source: nodes[x+reactions[i].id], target: nodes[reactions[i].id], input: true, val: value, special: true, blocked: blocked, missing: missing});
 			} else {
+				nodes[x].count++;
+				if (nodes[x].count > maxcount) maxcount = nodes[x].count;
 				links.push({origin: reactions[i], source: nodes[x], target: nodes[reactions[i].id], input: true, val: value, blocked: blocked, missing: missing});
 			}
 		}
@@ -246,7 +272,21 @@ MetabolicGraph.prototype.setReactions_showmetabs = function(list) {
 				nodes[x+reactions[i].id] = {"id": x+reactions[i].id, "name": x, "val": 3, type: "metabolite", blocked: blocked, data: 0.0};
 				links.push({origin: reactions[i], source: nodes[reactions[i].id], target: nodes[x+reactions[i].id], val: value, special: true, blocked: blocked, missing: missing});
 			} else {
+				nodes[x].count++;
+				if (nodes[x].count > maxcount) maxcount = nodes[x].count;
 				links.push({origin: reactions[i], source: nodes[reactions[i].id], target: nodes[x], val: value, blocked: blocked, missing: missing});
+			}
+		}
+	}
+
+	// Filter isolated nodes and links
+	if (this.options.removeIsolatedMetabolites) {
+		for (var i=0; i<links.length; i++) {
+			let n = (links[i].target.type == "metabolite") ? links[i].target : links[i].source;
+			if (n.count <= 1) {
+				links.splice(i,1);
+				i--;
+				delete nodes[n.id];
 			}
 		}
 	}
@@ -282,13 +322,24 @@ MetabolicGraph.prototype.setReactions_showmetabs = function(list) {
 			}
 		}*/
 		//return 60; //130 - 10 * Math.abs(link.val);
-		return 100; //(link.subsys) ? 100 : 40;
-	}, -100);
+		//return 100; //(link.subsys) ? 100 : 40;
+
+		let count = ((link.target.type == "metabolite") ? link.target.count-1 : link.source.count-1) / (maxcount-1);
+		return (link.subsys) ? 100 : Math.floor(40 + count*100);
+	}, -200);
 }
 
 function selectColor(colorNum, colors){
     if (colors < 1) colors = 1; // defaults to one color - avoid divide by zero
     return "hsl(" + Math.floor(colorNum * (360 / colors) % 360) + ",100%,50%)";
+}
+
+function pathStyle(d) {
+	if (d.subsys) return "";
+	if (d.missing) return "";
+	if (d.blocked) return "stroke: blue; stroke-width: 1px";
+	if (d.val < 0) return "stroke-width: " + Math.ceil(Math.abs(d.val)) + "px; stroke: rgba(0,255,0,"+(Math.abs(d.val)/10)+")";
+	return "stroke-width: " + Math.ceil(Math.abs(d.val)) + "px; stroke: rgba(255,0,0,"+(Math.abs(d.val)/10)+")";
 }
 
 MetabolicGraph.prototype.graphData = function(data, dist, charge) {
@@ -334,7 +385,7 @@ MetabolicGraph.prototype.graphData = function(data, dist, charge) {
 	  .enter().append("svg:path")
 	//    .attr("class", function(d) { return "link " + d.type; })
 		.attr("class", function(d) { return (d.subsys) ? "link invisible" : (((d.special) ? "link special" : "link") + ((d.blocked) ? " blocked" : "") + ((d.val < 0) ? " negative" : "") + ((d.missing) ? " missing" : "")); })
-		.attr("style", function(d) { return "stroke-width: " + Math.ceil(Math.abs(d.val)) + "px; stroke: rgba(255,0,0,"+(Math.abs(d.val)/10)+")"; })
+		.attr("style", pathStyle)
 		.attr("marker-end", function(d) { return (d.input) ? "" : "url(#end)"; });
 
 	// define the nodes

@@ -151,6 +151,10 @@ Dialog.prototype.reactionSelector = function() {
 	subselect.onchange = function(e) {
 		if (e.target.value == "all") {
 			me.reaction_list = me.model.reactions;
+		} else if (e.target.value == "allenz") {
+			me.reaction_list = me.model.reactions.filter(a => a.ec != "");
+		} else if (e.target.value == "SKIP") {
+			// Nothing
 		} else if (e.target.value != "alldata") {
 			me.reaction_list = me.model.subsystems[e.target.value].reactions;
 		} else {
@@ -188,6 +192,15 @@ Dialog.prototype.updateReactions = function(model) {
 	allopt = document.createElement("option");
 	allopt.textContent = "All in data";
 	allopt.value = "alldata";
+	this.subsystem_select.appendChild(allopt);
+	allopt = document.createElement("option");
+	allopt.textContent = "All Enzymes";
+	allopt.value = "allenz";
+	this.subsystem_select.appendChild(allopt);
+
+	allopt = document.createElement("option");
+	allopt.textContent = "----------";
+	allopt.value = "SKIP";
 	this.subsystem_select.appendChild(allopt);
 
 	for (var x in model.subsystems) {
@@ -287,7 +300,8 @@ Dialog.prototype.buttons = function() {
 			hideMetabolites: false,
 			hideMetaboliteNames: true,
 			hideSpecials: true,
-			showReactionNames: true
+			showReactionNames: true,
+			removeIsolatedMetabolites: true
 		});
 	}
 	this.element.appendChild(go);
