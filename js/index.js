@@ -301,7 +301,7 @@ MetabolicGraph.prototype.graphData = function(data, dist, charge) {
 		.size([width, height])
 		.linkDistance(dist) //60
 		.charge(charge) // -300
-		.linkStrength(link => (link.subsys) ? 1 : 0.1)
+		.linkStrength(link => (link.subsys) ? 2 : 0.1)
 		.on("tick", tick)
 		.start();
 	this.force = force;
