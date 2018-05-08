@@ -1,3 +1,7 @@
 
-window.MetabolicGraph = require('./index.js');
+window.GEMVIS = {
+	MetabolicGraph: require('./index.js'),
+	Dialog: require('./dialog.js')
+};
+
 

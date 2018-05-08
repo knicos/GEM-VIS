@@ -1,7 +1,11 @@
 path.link {
   fill: none;
-  stroke: #666;
+  stroke: red;
   stroke-width: 1.5px;
+}
+
+path.link.negative {
+  stroke: green;
 }
 
 path.link.special {
@@ -9,11 +13,20 @@ path.link.special {
 }
 
 path.link.blocked {
-	stroke: rgba(255,0,0,0.3);
+	stroke: blue;
+}
+
+path.link.missing {
+	stroke: rgba(0,0,0,0.3)
+}
+
+path.link.invisible {
+	stroke: blue;
+	stroke-dasharray: 2, 2;
 }
 
 circle {
-  fill: blue;
+  fill: red;
   stroke: #222;
   stroke-width: 1.5px;
 }
@@ -31,16 +44,64 @@ circle {
 }
 
 .metabolite.dead > circle {
-	fill: red;
+	fill: #666;
+}
+
+.metabolite.missing > circle {
+	fill: #666;
+}
+
+.metabolite.negative > circle {
+	fill: green;
 }
 
 text {
   fill: black;
-  font: 14px sans-serif;
+  font: 8pt sans-serif;
   pointer-events: none;
 }
 
 .metabolite.blocked > text {
 	fill-opacity: 0.3;
+}
+
+div.graph {
+	position: absolute;
+	left: 300px;
+	right: 0;
+	top: 0;
+	bottom: 0;
+	overflow: scroll;
+}
+
+div.gem-vis.dialog {
+	position: absolute;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-around;
+	width: 300px;
+	left: 0;
+	top: 0;
+	bottom: 0;
+}
+
+div.question {
+	display: flex;
+	justify-content: flex-start;
+}
+
+label {
+	width: 200px;
+	text-align: right;
+	font-weight: bold;
+	margin-right: 20px;
+}
+
+input {
+	flex-grow: 2;
+}
+
+select {
+
 }
 

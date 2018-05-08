@@ -1,0 +1,193 @@
+Protein,Log2 Fold,p-value,Unique Pep,Sig1,Sig2,Uniprot ID,Annotation Name,Gene name,Rating,Model
+sll0379,3.506530222,0.00E+00,6,TRUE,TRUE,Q55746,Acyl-[acyl-carrier-protein]--UDP-N-acetylglucosamine O-acyltransferase (UDP-N-acetylglucosamine acyltransferase) (EC 2.3.1.129),lpxA sll0379,2,*
+sll0631,3.185845777,0.00E+00,2,TRUE,TRUE,P74562,L-aspartate oxidase (LASPO) (EC 1.4.3.16) (Quinolinate synthase B),nadB sll0631,3,*
+sll1249,2.693096905,0.00E+00,5,TRUE,TRUE,Q55074,Bifunctional pantoate ligase/cytidylate kinase [Includes: Pantothenate synthetase (PS) (EC 6.3.2.1) (Pantoate--beta-alanine ligase) (Pantoate-activating enzyme); Cytidylate kinase (CK) (EC 2.7.4.25) (Cytidine monophosphate kinase) (CMP kinase)],panC/cmk panC/kcy sll1249,4,*
+sll0506,2.480742434,1.24E-13,2,TRUE,TRUE,Q55482,Isoprenyl transferase (EC 2.5.1.-),uppS sll0506,3,*
+sll0469,2.058552941,0.00E+00,6,TRUE,TRUE,Q55848,Ribose-phosphate pyrophosphokinase (RPPK) (EC 2.7.6.1) (5-phospho-D-ribosyl alpha-1-diphosphate) (Phosphoribosyl diphosphate synthase) (Phosphoribosyl pyrophosphate synthase) (P-Rib-PP synthase) (PRPP synthase) (PRPPase),prs prsA sll0469,4,*
+sll0899,1.448118823,0.00E+00,3,TRUE,TRUE,Q55504,Bifunctional protein GlmU [Includes: UDP-N-acetylglucosamine pyrophosphorylase (EC 2.7.7.23) (N-acetylglucosamine-1-phosphate uridyltransferase); Glucosamine-1-phosphate N-acetyltransferase (EC 2.3.1.157)],glmU sll0899,4,*
+sll0542,1.407772632,0.00E+00,9,TRUE,TRUE,Q55404,Acetyl-coenzyme A synthetase (AcCoA synthetase) (Acs) (EC 6.2.1.1) (Acetate--CoA ligase) (Acyl-activating enzyme),acsA acs sll0542,3,*
+sll0179,1.360396881,0.00E+00,18,TRUE,TRUE,Q55778,Glutamate--tRNA ligase (EC 6.1.1.17) (Glutamyl-tRNA synthetase) (GluRS),gltX sll0179,3,*
+slr1096,1.308736632,0.00E+00,24,TRUE,TRUE,P72740,Dihydrolipoyl dehydrogenase (EC 1.8.1.4) (Dihydrolipoamide dehydrogenase) (LPD) (E3 component of pyruvate complex),lpdA pdhD slr1096,4,*
+slr1884,1.292085596,0.00E+00,6,TRUE,TRUE,P73655,Tryptophan--tRNA ligase (EC 6.1.1.2) (Tryptophanyl-tRNA synthetase) (TrpRS),trpS slr1884,3,*
+slr1254,1.272228328,0.00E+00,5,TRUE,TRUE,P29273,Phytoene dehydrogenase (EC 1.3.99.-) (Phytoene desaturase),pds crtD slr1254,3,*
+sll1023,1.241123876,0.00E+00,2,TRUE,TRUE,P72927,Succinate--CoA ligase,sucC,1,*
+slr0089,1.19543526,0.00E+00,5,TRUE,TRUE,Q55809,Delta(24)-sterol C-methyltransferase,erg6,1,*
+sll0757,1.164620702,0.00E+00,8,TRUE,TRUE,Q55621,Amidophosphoribosyltransferase (ATase) (EC 2.4.2.14) (Glutamine phosphoribosylpyrophosphate amidotransferase) (GPATase),purF sll0757,3,*
+slr0049,1.123309283,0.00E+00,11,TRUE,FALSE,Q55131,Slr0049 protein,slr0049,1,*
+slr0017,1.043533145,2.13E-12,2,TRUE,FALSE,Q55673,UDP-N-acetylglucosamine 1-carboxyvinyltransferase (EC 2.5.1.7) (Enoylpyruvate transferase) (UDP-N-acetylglucosamine enolpyruvyl transferase) (EPT),murA murZ slr0017,3,*
+sll0711,1.041021603,0.00E+00,4,TRUE,FALSE,P72663,4-diphosphocytidyl-2-C-methyl-D-erythritol kinase (CMK) (EC 2.7.1.148) (4-(cytidine-5'-diphospho)-2-C-methyl-D-erythritol kinase),ispE sll0711,3,*
+sll1499,0.9887360505,0.00E+00,30,TRUE,FALSE,P55038,Ferredoxin-dependent glutamate synthase 2 (EC 1.4.7.1) (FD-GOGAT),gltS sll1499,4,*
+slr0118,0.9709955237,5.00E-15,8,TRUE,FALSE,Q55894,Phosphomethylpyrimidine synthase (EC 4.1.99.17) (Hydroxymethylpyrimidine phosphate synthase) (HMP-P synthase) (HMP-phosphate synthase) (HMPP synthase) (Thiamine biosynthesis protein ThiC),thiC slr0118,3,*
+sll0764,0.9643077305,0.00E+00,12,TRUE,FALSE,Q55614,High-affinity branched-chain amino acid transport ATP-binding protein,livG,1,*
+slr0444,0.9345637488,7.98E-08,9,TRUE,FALSE,Q59975,3-phosphoshikimate 1-carboxyvinyltransferase (EC 2.5.1.19) (5-enolpyruvylshikimate-3-phosphate synthase) (EPSP synthase) (EPSPS),aroA slr0444,3,*
+sll0244,0.9187066572,9.87E-14,2,TRUE,FALSE,P73887,UDP-glucose 4-epimerase,galE,1,*
+sll0066,0.9108640429,3.75E-13,4,TRUE,FALSE,Q55140,Sll0066 protein,sll0066,1,*
+sll1987,0.8920183578,0.00E+00,16,TRUE,FALSE,P73911,Catalase-peroxidase (CP) (EC 1.11.1.21) (Peroxidase/catalase),katG sll1987,5,*
+sll1709,0.8629209947,0.00E+00,5,TRUE,FALSE,P73684,Glucose dehydrogenase,gdh,1,*
+sll0593,0.8467435976,0.00E+00,7,TRUE,FALSE,Q55855,Glucokinase (EC 2.7.1.2) (Glucose kinase),glk sll0593,2,*
+sll1362,0.8410702188,0.00E+00,18,TRUE,FALSE,P73505,Isoleucine--tRNA ligase (EC 6.1.1.5) (Isoleucyl-tRNA synthetase) (IleRS),ileS sll1362,3,*
+slr0909,0.8213195706,0.00E+00,7,TRUE,FALSE,Q55375,Slr0909 protein,slr0909,1,*
+slr0520,0.8053532114,0.00E+00,5,TRUE,FALSE,Q55843,Phosphoribosylformylglycinamidine synthase subunit PurQ (FGAM synthase) (EC 6.3.5.3) (Formylglycinamide ribonucleotide amidotransferase subunit I) (FGAR amidotransferase I) (FGAR-AT I) (Glutaminase PurQ) (EC 3.5.1.2) (Phosphoribosylformylglycinamidine synthase subunit I),purQ slr0520,3,*
+sll0158,0.7948140138,0.00E+00,20,TRUE,FALSE,P52981,"1,4-alpha-glucan branching enzyme GlgB (EC 2.4.1.18) (1,4-alpha-D-glucan:1,4-alpha-D-glucan 6-glucosyl-transferase) (Alpha-(1->4)-glucan branching enzyme) (Glycogen branching enzyme) (BE)",glgB sll0158,3,*
+slr1423,0.7682347622,4.81E-13,3,TRUE,FALSE,P74528,UDP-N-acetylmuramate--L-alanine ligase (EC 6.3.2.8) (UDP-N-acetylmuramoyl-L-alanine synthetase),murC slr1423,3,*
+slr0213,0.7576570779,0.00E+00,11,TRUE,FALSE,P49057,GMP synthase [glutamine-hydrolyzing] (EC 6.3.5.2) (GMP synthetase) (Glutamine amidotransferase),guaA slr0213,3,*
+slr0528,0.7520737744,0.00E+00,10,TRUE,FALSE,Q55469,"UDP-N-acetylmuramoyl-L-alanyl-D-glutamate--2,6-diaminopimelate ligase (EC 6.3.2.13) (Meso-A2pm-adding enzyme) (Meso-diaminopimelate-adding enzyme) (UDP-MurNAc-L-Ala-D-Glu:meso-diaminopimelate ligase) (UDP-MurNAc-tripeptide synthetase) (UDP-N-acetylmuramyl-tripeptide synthetase)",murE slr0528,4,*
+sll0080,0.7432150931,0.00E+00,8,TRUE,FALSE,P54899,N-acetyl-gamma-glutamyl-phosphate reductase (AGPR) (EC 1.2.1.38) (N-acetyl-glutamate semialdehyde dehydrogenase) (NAGSA dehydrogenase),argC sll0080,3,*
+sll1561,0.7188235646,0.00E+00,23,TRUE,FALSE,P74275,Delta-1-pyrroline-5-carboxylate dehydrogenase,putA,2,*
+slr2072,0.7186883225,0.00E+00,10,TRUE,FALSE,P73375,L-threonine dehydratase (EC 4.3.1.19) (Threonine deaminase),ilvA,2,*
+sll1356,0.7180427004,0.00E+00,26,TRUE,FALSE,P73511,Glycogen phosphorylase (EC 2.4.1.1),glgP sll1356,2,*
+slr0523,0.7135017156,2.91E-08,3,TRUE,FALSE,Q55849,ATP-dependent dethiobiotin synthetase BioD (EC 6.3.3.3) (DTB synthetase) (DTBS) (Dethiobiotin synthase),bioD slr0523,3,*
+slr0212,0.7050418333,0.00E+00,8,TRUE,FALSE,Q55786,"Methionine synthase (EC 2.1.1.13) (5-methyltetrahydrofolate--homocysteine methyltransferase) (Methionine synthase, vitamin-B12 dependent) (MS)",metH slr0212,3,*
+sll1894,0.7045847998,5.55E-16,6,TRUE,FALSE,P74104,"Riboflavin biosynthesis protein RibBA [Includes: 3,4-dihydroxy-2-butanone 4-phosphate synthase (DHBP synthase) (EC 4.1.99.12); GTP cyclohydrolase-2 (EC 3.5.4.25) (GTP cyclohydrolase II)]",ribBA ribA sll1894,4,*
+slr2094,0.6894370813,0.00E+00,20,TRUE,FALSE,P73922,"D-fructose 1,6-bisphosphatase class 2/sedoheptulose 1,7-bisphosphatase (FBPase class 2/SBPase) (EC 3.1.3.11) (EC 3.1.3.37)",slr2094,3,*
+slr0839,0.6880357774,1.80E-14,3,TRUE,FALSE,P54225,Ferrochelatase (EC 4.99.1.1) (Heme synthase) (Protoheme ferro-lyase),hemH slr0839,3,*
+slr0426,0.6795282581,0.00E+00,14,TRUE,FALSE,Q55759,GTP cyclohydrolase 1 (EC 3.5.4.16) (GTP cyclohydrolase I) (GTP-CH-I),folE slr0426,3,*
+sll1058,0.6716147029,0.00E+00,6,TRUE,FALSE,P72642,4-hydroxy-tetrahydrodipicolinate reductase (HTPA reductase) (EC 1.17.1.8),dapB sll1058,3,*
+sll0374,0.6631007982,3.17E-13,4,TRUE,FALSE,Q55753,High-affinity branched-chain amino acid transport ATP-binding protein,braG or livF,1,*
+slr1626,0.662827526,1.45E-11,3,TRUE,FALSE,P74342,"Probable dihydroneopterin aldolase (DHNA) (EC 4.1.2.25) (7,8-dihydroneopterin aldolase)",folB slr1626,3,*
+sll0078,0.6304872003,1.08E-08,18,TRUE,FALSE,Q55806,Threonine--tRNA ligase (EC 6.1.1.3) (Threonyl-tRNA synthetase) (ThrRS),thrS sll0078,3,*
+slr0546,0.6301572837,2.47E-09,3,TRUE,FALSE,Q55508,Indole-3-glycerol phosphate synthase (IGPS) (EC 4.1.1.48),trpC slr0546,2,*
+slr1159,0.6297366734,1.79E-11,10,TRUE,FALSE,P74232,Phosphoribosylamine--glycine ligase (EC 6.3.4.13) (GARS) (Glycinamide ribonucleotide synthetase) (Phosphoribosylglycinamide synthetase),purD slr1159,3,*
+slr1165,0.6242749026,0.00E+00,16,TRUE,FALSE,P74241,Sulfate adenylyltransferase (EC 2.7.7.4) (ATP-sulfurylase) (Sulfate adenylate transferase) (SAT),sat slr1165,2,*
+slr1645,0.6004577471,9.00E-14,7,TRUE,FALSE,P74367,Photosystem II lipoprotein Psb27 (Photosystem II 11 kDa protein),psb27 slr1645,4,*
+slr0525,0.5983505833,0.00E+00,7,TRUE,FALSE,Q55467,Magnesium-protoporphyrin O-methyltransferase (EC 2.1.1.11) (Magnesium-protoporphyrin IX methyltransferase),chlM slr0525,3,*
+sll1521,0.589601189,1.11E-16,21,TRUE,FALSE,P74373,Putative diflavin flavoprotein A 3 (EC 1.-.-.-),dfa3 sll1521,2,*
+slr1124,0.5752108834,4.91E-13,8,TRUE,FALSE,P72649,Phosphoglycerate mutase,gpmB,1,*
+sll1605,0.5731973347,0.00E+00,2,TRUE,FALSE,P73848,3-hydroxyacyl-[acyl-carrier-protein] dehydratase FabZ (EC 4.2.1.59) ((3R)-hydroxymyristoyl-[acyl-carrier-protein] dehydratase) ((3R)-hydroxymyristoyl-ACP dehydrase) (Beta-hydroxyacyl-ACP dehydratase),fabZ sll1605,3,*
+slr0665,0.5619398483,0.00E+00,20,TRUE,FALSE,P74582,"Aconitate hydratase B (ACN) (Aconitase) (EC 4.2.1.3) ((2R,3S)-2-methylisocitrate dehydratase) ((2S,3R)-3-hydroxybutane-1,2,3-tricarboxylate dehydratase) (2-methyl-cis-aconitate hydratase) (EC 4.2.1.99) (Iron-responsive protein-like) (IRP-like) (RNA-binding protein)",acnB slr0665,4,*
+slr1351,0.5538026294,1.30E-14,4,TRUE,FALSE,P45450,UDP-N-acetylmuramoyl-tripeptide--D-alanyl-D-alanine ligase (EC 6.3.2.10) (D-alanyl-D-alanine-adding enzyme) (UDP-MurNAc-pentapeptide synthetase),murF slr1351,3,*
+sll1070,0.5347618089,0.00E+00,24,TRUE,FALSE,P73282,Transketolase (EC 2.2.1.1),tktA,2,*
+sll1981,0.5307993463,2.25E-13,10,TRUE,FALSE,P73918,Acetolactate synthase,ilvB,1,*
+sll1566,0.5187504449,1.73E-13,7,TRUE,FALSE,P74258,Glucosylglycerol-phosphate synthase (EC 2.4.1.213) (Glucosyl-glycerol-phosphate synthase) (GG-phosphate synthase) (GGPS),ggpS sll1566,3,*
+sll0851,0.5177693056,1.99E-12,23,TRUE,FALSE,P09193,Photosystem II CP43 reaction center protein (PSII 43 kDa protein) (Protein CP-43),psbC sll0851,4,*
+sll1363,0.5140876545,0.00E+00,16,TRUE,FALSE,P29107,Ketol-acid reductoisomerase (NADP(+)) (KARI) (EC 1.1.1.86) (Acetohydroxy-acid isomeroreductase) (AHIR) (Alpha-keto-beta-hydroxylacyl reductoisomerase) (Ketol-acid reductoisomerase type 1) (Ketol-acid reductoisomerase type I),ilvC sll1363,5,*
+slr0776,0.5072089398,1.44E-06,5,TRUE,FALSE,Q55612,UDP-3-O-acylglucosamine N-acyltransferase (EC 2.3.1.-),lpxD slr0776,2,*
+sll2010,0.5055009814,8.00E-12,2,TRUE,FALSE,P73668,UDP-N-acetylmuramoylalanine--D-glutamate ligase (EC 6.3.2.9) (D-glutamic acid-adding enzyme) (UDP-N-acetylmuramoyl-L-alanyl-D-glutamate synthetase),murD sll2010,3,*
+sll0838,0.4977012652,5.76E-09,3,TRUE,FALSE,P73761,Orotidine 5'-phosphate decarboxylase (EC 4.1.1.23) (OMP decarboxylase) (OMPDCase) (OMPdecase),pyrF sll0838,3,*
+sll1270,0.4949342838,0.00E+00,8,TRUE,FALSE,P73544,Glutamine-binding periplasmic protein/glutamine transport system permease protein,glnH glnP,2,*
+slr1916,0.4896683603,7.25E-12,6,TRUE,FALSE,P73114,Esterase,slr1916,1,*
+slr1829,0.4850696242,0.00E+00,12,TRUE,FALSE,P73389,Poly(3-hydroxyalkanoate) polymerase subunit PhaE (PHA polymerase) (PHB synthase subunit PhaE) (Poly(3-hydroxybutyrate) polymerase subunit PhaE) (PHB polymerase) (Poly(hydroxyalkanoic acid) synthase subunit PhaE) (PHA synthase) (Polyhydroxyalkanoic acid synthase subunit PhaE),phaE slr1829,3,*
+sll1852,0.4836327947,0.00E+00,7,TRUE,FALSE,P74494,Nucleoside diphosphate kinase (NDK) (NDP kinase) (EC 2.7.4.6) (Nucleoside-2-P kinase),ndk ndkR sll1852,3,*
+slr1329,0.4835587105,0.00E+00,28,TRUE,FALSE,P26527,ATP synthase subunit beta (EC 3.6.3.14) (ATP synthase F1 sector subunit beta) (F-ATPase subunit beta),atpD atpB slr1329,3,*
+sll0504,0.4755802159,1.59E-14,9,TRUE,FALSE,Q55484,Diaminopimelate decarboxylase (DAP decarboxylase) (DAPDC) (EC 4.1.1.20),lysA sll0504,3,*
+slr0357,0.4723231961,0.00E+00,5,TRUE,FALSE,Q55653,Histidine--tRNA ligase (EC 6.1.1.21) (Histidyl-tRNA synthetase) (HisRS),hisS slr0357,2,*
+slr0056,0.4715446748,2.63E-11,2,TRUE,FALSE,Q55145,Chlorophyll a synthase,chlG,1,*
+sll0927,0.4625562424,1.77E-14,11,TRUE,FALSE,P72871,S-adenosylmethionine synthase (AdoMet synthase) (EC 2.5.1.6) (MAT) (Methionine adenosyltransferase),metK sll0927,4,*
+slr0953,0.4491792947,2.45E-06,3,TRUE,FALSE,P74325,Slr0953 protein,slr0953,1,*
+sll1625,0.4453644182,1.95E-09,6,TRUE,FALSE,P73723,Succinate dehydrogenase iron-sulfur subunit (EC 1.3.5.1),sdhB,2,*
+slr1735,0.4425003172,2.01E-13,8,TRUE,FALSE,P73721,ABC transporter,slr1735,1,*
+slr1226,0.4386505612,5.88E-15,10,TRUE,FALSE,P73471,Phosphoribosylaminoimidazole-succinocarboxamide synthase (EC 6.3.2.6) (SAICAR synthetase),purC slr1226,2,*
+slr0710,0.438158998,2.87E-12,6,TRUE,FALSE,P54386,NADP-specific glutamate dehydrogenase (NADP-GDH) (EC 1.4.1.4),gdhA slr0710,3,*
+slr0838,0.4249197301,0.00E+00,5,TRUE,FALSE,Q55422,Phosphoribosylformylglycinamidine cyclo-ligase (EC 6.3.3.1) (AIR synthase) (AIRS) (Phosphoribosyl-aminoimidazole synthetase),purM slr0838,2,*
+sll1336,0.4203903591,0.00E+00,19,TRUE,FALSE,P74535,Sll1336 protein,sll1336,1,*
+sll1682,0.4203047614,1.22E-15,8,TRUE,FALSE,P72775,Alanine dehydrogenase (EC 1.4.1.1),sll1682,2,*
+sll1091,0.4172640902,0.00E+00,21,TRUE,FALSE,Q55087,Geranylgeranyl diphosphate reductase (EC 1.3.1.83) (Geranylgeranyl reductase),chlP sll1091,3,*
+slr1133,0.4112470237,2.22E-16,11,TRUE,FALSE,P73257,Argininosuccinate lyase (ASAL) (EC 4.3.2.1) (Arginosuccinase),argH slr1133,2,*
+sll1479,0.4086228283,1.18E-10,7,TRUE,FALSE,P74618,6-phosphogluconolactonase (6PGL) (EC 3.1.1.31),pgl devB sll1479,3,*
+slr0783,0.4012161763,2.24E-09,6,TRUE,FALSE,Q59994,Triosephosphate isomerase (TIM) (TPI) (EC 5.3.1.1) (Triose-phosphate isomerase),tpiA tpi slr0783,3,*
+slr1887,0.3924912319,0.00E+00,20,TRUE,FALSE,P73660,Porphobilinogen deaminase (PBG) (EC 2.5.1.61) (Hydroxymethylbilane synthase) (HMBS) (Pre-uroporphyrinogen synthase),hemC slr1887,3,*
+slr0348,0.391254645,1.62E-06,5,TRUE,FALSE,Q55643,4-hydroxy-3-methylbut-2-enyl diphosphate reductase (HMBPP reductase) (EC 1.17.7.4),ispH lytB slr0348,3,*
+slr1609,0.3866666293,3.87E-12,13,TRUE,FALSE,P73004,Long-chain-fatty-acid CoA ligase,slr1609,1,*
+sll1326,0.3860377407,0.00E+00,30,TRUE,FALSE,P27179,ATP synthase subunit alpha (EC 3.6.3.14) (ATP synthase F1 sector subunit alpha) (F-ATPase subunit alpha),atpA sll1326,3,*
+sll1234,0.3845820311,2.29E-14,12,TRUE,FALSE,P74008,Adenosylhomocysteinase (EC 3.3.1.1) (S-adenosyl-L-homocysteine hydrolase) (AdoHcyase),ahcY sll1234,3,*
+slr1843,0.3825804349,0.00E+00,30,TRUE,FALSE,P73411,Glucose-6-phosphate 1-dehydrogenase (G6PD) (EC 1.1.1.49),zwf slr1843,2,*
+sll1841,0.3816083686,2.00E-12,15,TRUE,FALSE,P74510,Dihydrolipoamide acetyltransferase component of pyruvate dehydrogenase complex (EC 2.3.1.-),odhB,2,*
+sll0147,0.3810370142,6.28E-09,6,TRUE,FALSE,P74454,Sll0147 protein,sll0147,1,*
+slr0958,0.369453196,1.22E-14,5,TRUE,FALSE,P74330,Cysteine--tRNA ligase (EC 6.1.1.16) (Cysteinyl-tRNA synthetase) (CysRS),cysS slr0958,3,*
+slr0452,0.3648461571,8.16E-14,21,TRUE,FALSE,P74689,Dihydroxy-acid dehydratase (DAD) (EC 4.2.1.9),ilvD slr0452,2,*
+slr0963,0.3534150486,2.10E-14,25,TRUE,FALSE,P72854,Sulfite reductase [ferredoxin] (EC 1.8.7.1),sir slr0963,3,*
+slr0536,0.3442134279,1.57E-13,13,TRUE,FALSE,P54224,Uroporphyrinogen decarboxylase (UPD) (URO-D) (EC 4.1.1.37),hemE slr0536,3,*
+slr0557,0.3357186193,8.18E-13,20,TRUE,FALSE,Q55522,Valine--tRNA ligase (EC 6.1.1.9) (Valyl-tRNA synthetase) (ValRS),valS slr0557,3,*
+sll1470,0.3352129364,3.89E-15,12,TRUE,FALSE,P54384,3-isopropylmalate dehydratase large subunit (EC 4.2.1.33) (Alpha-IPM isomerase) (IPMI) (Isopropylmalate isomerase),leuC sll1470,3,*
+sll0362,0.3351818775,3.89E-14,14,TRUE,FALSE,P74423,Alanine--tRNA ligase (EC 6.1.1.7) (Alanyl-tRNA synthetase) (AlaRS),alaS sll0362,3,*
+slr0649,0.3320619794,4.40E-06,10,TRUE,FALSE,Q55729,Methionine--tRNA ligase (EC 6.1.1.10) (Methionyl-tRNA synthetase) (MetRS),metG metS slr0649,3,*
+slr1176,0.3319632295,2.75E-12,23,TRUE,FALSE,P52415,Glucose-1-phosphate adenylyltransferase (EC 2.7.7.27) (ADP-glucose pyrophosphorylase) (ADPGlc PPase) (ADP-glucose synthase),glgC agp slr1176,3,*
+sll1327,0.3300177431,8.77E-15,9,TRUE,FALSE,P17253,ATP synthase gamma chain (ATP synthase F1 sector gamma subunit) (F-ATPase gamma subunit),atpG atpC sll1327,3,*
+sll1931,0.3300069733,7.83E-09,17,TRUE,FALSE,P77962,Serine hydroxymethyltransferase (SHMT) (Serine methylase) (EC 2.1.2.1),glyA sll1931,3,*
+slr0009,0.3279264253,6.36E-12,42,TRUE,FALSE,P54205,Ribulose bisphosphate carboxylase large chain (RuBisCO large subunit) (EC 4.1.1.39),cbbL rbcL slr0009,4,*
+slr0597,0.3269076841,9.89E-13,17,TRUE,FALSE,P74741,Bifunctional purine biosynthesis protein PurH [Includes: Phosphoribosylaminoimidazolecarboxamide formyltransferase (EC 2.1.2.3) (AICAR transformylase); IMP cyclohydrolase (EC 3.5.4.10) (ATIC) (IMP synthase) (Inosinicase)],purH slr0597,3,*
+sll0753,0.3225920498,1.14E-08,10,TRUE,FALSE,Q55626,Bifunctional protein FolD [Includes: Methylenetetrahydrofolate dehydrogenase (EC 1.5.1.5); Methenyltetrahydrofolate cyclohydrolase (EC 3.5.4.9)],folD sll0753,3,*
+slr0506,0.3225826567,1.78E-15,20,TRUE,FALSE,Q59987,Light-dependent protochlorophyllide reductase (PCR) (EC 1.3.1.33) (NADPH-protochlorophyllide oxidoreductase) (LPOR) (POR),por pcr slr0506,3,*
+sll1721,0.315790811,1.11E-16,18,TRUE,FALSE,P73405,Pyruvate dehydrogenase E1 beta subunit,pdhB,1,*
+slr0906,0.3075924504,1.31E-13,25,TRUE,FALSE,P05429,Photosystem II CP47 reaction center protein (PSII 47 kDa protein) (Protein CP-47),psbB slr0906,4,*
+slr2002,0.2885604282,1.11E-16,31,TRUE,FALSE,P73833,Cyanophycin synthetase (EC 6.3.2.29) (EC 6.3.2.30) (Cyanophycin synthase),cphA slr2002,3,*
+slr0559,0.2880588645,1.25E-13,12,TRUE,FALSE,Q55387,Periplasmic binding protein of ABC transporter for natural amino acids,natB,1,*
+sll1325,0.2854691885,1.01E-13,8,TRUE,FALSE,P27180,ATP synthase subunit delta (ATP synthase F(1) sector subunit delta) (F-type ATPase subunit delta) (F-ATPase subunit delta),atpH atpD sll1325,3,*
+sll1185,0.2850195761,4.92E-12,13,TRUE,FALSE,P72848,Oxygen-dependent coproporphyrinogen-III oxidase (CPO) (Coprogen oxidase) (Coproporphyrinogenase) (EC 1.3.3.3),hemF sll1185,5,*
+slr1311,0.2829641475,3.72E-14,14,TRUE,FALSE,P16033,Photosystem II protein D1 2 (PSII D1 protein 2) (EC 1.10.3.9) (Photosystem II Q(B) protein 2),psbA2 psbA-2 slr1311; psbA3 psbA-3 sll1867,5,*
+slr1923,0.2779994365,6.62E-08,11,TRUE,FALSE,P74473,Slr1923 protein,slr1923,1,*
+slr1867,0.2679703379,6.40E-07,4,TRUE,FALSE,P73617,Anthranilate phosphoribosyltransferase (EC 2.4.2.18),trpD slr1867,3,*
+sll1418,0.2616131923,1.17E-08,10,TRUE,FALSE,P73952,Sll1418 protein,sll1418,1,*
+sll1641,0.2550828766,2.22E-16,9,TRUE,FALSE,P73043,Glutamate decarboxylase (EC 4.1.1.15),gad,2,*
+sll0902,0.2409600662,6.77E-08,17,TRUE,FALSE,Q55497,Ornithine carbamoyltransferase (OTCase) (EC 2.1.3.3),argF sll0902,3,*
+sll0849,0.238929004,1.99E-09,12,TRUE,FALSE,P09192,Photosystem II D2 protein (PSII D2 protein) (EC 1.10.3.9) (Photosystem Q(A) protein),psbD sll0849,4,*
+sll1559,0.2386543062,4.25E-09,28,TRUE,FALSE,P74281,Soluble hydrogenase 42 kD subunit,sll1559,1,*
+sll1443,0.2383204911,1.16E-12,10,TRUE,FALSE,P74208,CTP synthase (EC 6.3.4.2) (Cytidine 5'-triphosphate synthase) (Cytidine triphosphate synthetase) (CTP synthetase) (CTPS) (UTP--ammonia ligase),pyrG sll1443,4,*
+slr1722,0.2344584615,8.17E-11,24,TRUE,FALSE,P73853,IMP dehydrogenase subunit,guaB,1,*
+sll1074,0.2341697433,1.79E-10,12,TRUE,FALSE,P73274,Leucine--tRNA ligase (EC 6.1.1.4) (Leucyl-tRNA synthetase) (LeuRS),leuS sll1074,2,*
+sll0726,0.2297960524,1.11E-15,21,TRUE,FALSE,P74643,Phosphoglucomutase,pgm,2,*
+slr1993,0.2263806434,1.12E-06,8,TRUE,FALSE,P73825,Acetyl-CoA acetyltransferase (EC 2.3.1.9) (Beta-ketothiolase PhaA),phaA slr1993,4,*
+sll1994,0.2217067638,6.60E-10,15,TRUE,FALSE,P77969,Delta-aminolevulinic acid dehydratase (ALAD) (ALADH) (EC 4.2.1.24) (Porphobilinogen synthase),hemB sll1994,3,*
+slr1233,0.2191733959,4.04E-14,6,TRUE,FALSE,P73479,Succinate dehydrogenase flavoprotein subunit,frdA,1,*
+slr1349,0.217815243,7.19E-12,28,TRUE,FALSE,P52983,Glucose-6-phosphate isomerase (GPI) (EC 5.3.1.9) (Phosphoglucose isomerase) (PGI) (Phosphohexose isomerase) (PHI),pgi slr1349,3,*
+ssr3451,0.213387663,5.34E-11,2,TRUE,FALSE,P09190,Cytochrome b559 subunit alpha (PSII reaction center subunit V),psbE ssr3451,4,*
+slr2034,0.2064783906,1.07E-10,12,TRUE,FALSE,P73069,Ycf48-like protein,slr2034,2,*
+sll1322,0.2033485915,1.96E-07,3,TRUE,FALSE,P27178,ATP synthase subunit a (ATP synthase F0 sector subunit a) (F-ATPase subunit 6),atpB atpI sll1322,2,*
+slr0394,0.2021712994,1.34E-08,14,TRUE,FALSE,P74421,Phosphoglycerate kinase (EC 2.7.2.3),pgk slr0394,3,*
+sll1920,0.2016094477,1.36E-09,6,TRUE,FALSE,P73241,Probable copper-transporting ATPase PacS (EC 3.6.3.54),pacS sll1920,4,*
+slr2001,0.1964616425,5.17E-10,7,TRUE,FALSE,P73832,Cyanophycinase (EC 3.4.15.6),cphB slr2001,5,*
+slr0260,0.1941536411,1.35E-07,7,TRUE,FALSE,P73874,Cob(I)alamin adenosyltransferase,cobA,1,*
+sll1056,0.1890999162,1.96E-07,13,TRUE,FALSE,P72644,Phosphoribosylformylglycinamidine synthase subunit PurL (FGAM synthase) (EC 6.3.5.3) (Formylglycinamide ribonucleotide amidotransferase subunit II) (FGAR amidotransferase II) (FGAR-AT II) (Glutamine amidotransferase PurL) (Phosphoribosylformylglycinamidine synthase subunit II),purL sll1056,3,*
+slr0886,0.1880144254,2.31E-13,8,TRUE,FALSE,P73574,3-oxoacyl-[acyl-carrier-protein] reductase (EC 1.1.1.100) (3-ketoacyl-acyl carrier protein reductase),fabG slr0886,4,*
+slr0585,0.1834686276,1.47E-10,29,TRUE,FALSE,P77973,Argininosuccinate synthase (EC 6.3.4.5) (Citrulline--aspartate ligase),argG slr0585,3,*
+slr1020,0.181694711,3.06E-09,22,TRUE,FALSE,P73128,Sulfolipid biosynthesis protein SqdB,sqdB,1,*
+slr0661,0.1757372008,4.02E-06,10,TRUE,FALSE,P74572,Pyrroline-5-carboxylate reductase (P5C reductase) (P5CR) (EC 1.5.1.2) (PCA reductase),proC slr0661,2,*
+slr1123,0.1725314396,5.90E-09,4,TRUE,FALSE,P72648,Guanylate kinase (EC 2.7.4.8) (GMP kinase),gmk slr1123,2,*
+slr1994,0.1630644345,9.14E-12,11,TRUE,FALSE,P73826,Acetoacetyl-CoA reductase (EC 1.1.1.36),phaB slr1994,4,*
+slr0752,0.1473587417,2.87E-11,19,TRUE,FALSE,P77972,Enolase (EC 4.2.1.11) (2-phospho-D-glycerate hydro-lyase) (2-phosphoglycerate dehydratase),eno slr0752,3,*
+sll0421,0.1468051833,1.37E-07,13,TRUE,FALSE,P74384,Adenylosuccinate lyase (ASL) (EC 4.3.2.2) (Adenylosuccinase) (ASase),purB sll0421,3,*
+sll1958,0.1423040675,4.79E-06,8,TRUE,FALSE,P73807,Histidinol-phosphate aminotransferase (EC 2.6.1.9) (Imidazole acetol-phosphate transaminase),hisC sll1958,3,*
+sll1342,0.1338980129,5.75E-07,32,TRUE,FALSE,P80505,Glyceraldehyde-3-phosphate dehydrogenase 2 (EC 1.2.1.59) (GAPDH 2) (NAD(P)-dependent glyceraldehyde-3-phosphate dehydrogenase) (NAD-dependent glyceraldehyde-3-phosphate dehydrogenase),gap2 sll1342,5,*
+sll0495,0.1161396745,4.44E-06,9,TRUE,FALSE,P52276,Asparagine--tRNA ligase (EC 6.1.1.22) (Asparaginyl-tRNA synthetase) (AsnRS),asnS sll0495,2,*
+slr1367,0.1160616694,5.99E-09,35,TRUE,FALSE,P73546,"Alpha-1,4 glucan phosphorylase (EC 2.4.1.1)",glgP,2,*
+sll0480,-0.1216583146,1.81E-07,25,TRUE,FALSE,Q55828,LL-diaminopimelate aminotransferase (DAP-AT) (DAP-aminotransferase) (LL-DAP-aminotransferase) (EC 2.6.1.83),dapL sll0480,3,*
+sll1196,-0.1684369223,2.39E-07,5,TRUE,FALSE,P72830,ATP-dependent 6-phosphofructokinase 1 (ATP-PFK 1) (Phosphofructokinase 1) (EC 2.7.1.11) (Phosphohexokinase 1),pfkA1 pfkA sll1196,4,*
+slr1238,-0.1847644161,3.65E-09,8,TRUE,FALSE,P73493,Glutathione synthetase (EC 6.3.2.3) (GSH synthetase) (GSH-S) (GSHase) (Glutathione synthase),gshB slr1238,3,*
+sll0207,-0.2119868679,3.74E-07,7,TRUE,FALSE,Q55689,Glucose-1-phosphate thymidylyltransferase,rfbA,1,*
+sll1747,-0.2158606335,1.39E-10,14,TRUE,FALSE,P23353,Chorismate synthase (CS) (EC 4.2.3.5) (5-enolpyruvylshikimate-3-phosphate phospholyase),aroC sll1747,3,*
+sll0936,-0.2290328123,8.85E-09,12,TRUE,FALSE,P72861,Uncharacterized protein sll0936,sll0936,1,*
+slr1550,-0.2523842912,6.81E-10,11,TRUE,FALSE,P73443,Lysine--tRNA ligase (EC 6.1.1.6) (Lysyl-tRNA synthetase) (LysRS),lysS slr1550,3,*
+sll1282,-0.2816724148,9.27E-13,5,TRUE,FALSE,P73527,"6,7-dimethyl-8-ribityllumazine synthase (DMRL synthase) (LS) (Lumazine synthase) (EC 2.5.1.78)",ribH sll1282,3,*
+slr0652,-0.2825140149,1.50E-06,7,TRUE,FALSE,P74561,1-(5-phosphoribosyl)-5-[(5-phosphoribosylamino)methylideneamino] imidazole-4-carboxamide isomerase (EC 5.3.1.16) (Phosphoribosylformimino-5-aminoimidazole carboxamide ribotide isomerase),hisA slr0652,2,*
+slr1559,-0.2923078064,1.53E-08,7,TRUE,FALSE,P74591,Shikimate dehydrogenase (NADP(+)) (SDH) (EC 1.1.1.25),aroE slr1559,3,*
+sll1324,-0.3009779772,2.17E-06,14,TRUE,FALSE,P27181,ATP synthase subunit b (ATP synthase F(0) sector subunit b) (ATPase subunit I) (F-type ATPase subunit b) (F-ATPase subunit b),atpF sll1324,3,*
+sll1258,-0.3095641629,1.92E-11,5,TRUE,FALSE,P74073,Sll1258 protein,sll1258,1,*
+sll0578,-0.3306627173,3.60E-06,4,TRUE,FALSE,P74724,N5-carboxyaminoimidazole ribonucleotide synthase (N5-CAIR synthase) (EC 6.3.4.18) (5-(carboxyamino)imidazole ribonucleotide synthetase),purK sll0578,3,*
+slr0550,-0.3309739233,6.68E-11,6,TRUE,FALSE,Q55513,4-hydroxy-tetrahydrodipicolinate synthase (HTPA synthase) (EC 4.3.3.7),dapA slr0550,3,*
+slr0676,-0.3533261646,0.00E+00,5,TRUE,FALSE,P72940,Probable adenylyl-sulfate kinase (EC 2.7.1.25) (APS kinase) (ATP adenosine-5'-phosphosulfate 3'-phosphotransferase) (Adenosine-5'-phosphosulfate kinase),cysC slr0676,3,*
+sll0228,-0.3624052966,6.06E-08,3,TRUE,FALSE,P72703,Agmatinase 1 (EC 3.5.3.11) (Agmatine ureohydrolase 1) (AUH 1),speB1 sll0228,2,*
+slr0001,-0.3820764333,1.11E-16,6,TRUE,FALSE,Q55660,Slr0001 protein,slr0001,1,*
+sll1358,-0.3896612805,3.78E-13,8,TRUE,FALSE,P73510,Sll1358 protein,sll1358,1,*
+sll0258,-0.5007270524,2.51E-13,11,TRUE,FALSE,Q55013,Cytochrome c-550 (Cytochrome c549) (Cytochrome c550) (Low-potential cytochrome c),psbV petK sll0258,5,*
+slr0185,-0.5406103277,0.00E+00,7,TRUE,FALSE,Q55574,Orotate phosphoribosyltransferase (OPRT) (OPRTase) (EC 2.4.2.10),pyrE slr0185,2,*
+slr1516,-0.5412365396,1.38E-07,9,TRUE,FALSE,P77968,Superoxide dismutase [Fe] (EC 1.15.1.1),sodB slr1516,3,*
+sll0807,-0.5456616507,8.63E-07,6,TRUE,FALSE,P74061,Ribulose-phosphate 3-epimerase (EC 5.1.3.1) (Pentose-5-phosphate 3-epimerase) (PPE) (R5P3E),rpe sll0807,4,*
+sll0660,-0.5518075411,6.73E-08,4,TRUE,FALSE,Q55982,4-hydroxythreonine-4-phosphate dehydrogenase (EC 1.1.1.262) (4-(phosphohydroxy)-L-threonine dehydrogenase),pdxA sll0660,3,*
+sll0554,-0.5678029998,1.73E-11,3,TRUE,FALSE,Q55389,"Ferredoxin-thioredoxin reductase, catalytic chain (FTR-C) (EC 1.8.7.2) (Ferredoxin-thioredoxin reductase subunit B) (FTR-B)",ftrC sll0554,5,*
+sll1662,-0.5697992994,5.14E-10,3,TRUE,FALSE,P72808,Prephenate dehydratase (PDT) (EC 4.2.1.51),pheA,2,*
+sll1669,-0.5836318594,3.83E-10,2,TRUE,FALSE,P72796,Shikimate kinase (SK) (EC 2.7.1.71),aroK sll1669,3,*
+slr1542,-0.5981157579,1.88E-06,2,TRUE,FALSE,P73426,"2-C-methyl-D-erythritol 2,4-cyclodiphosphate synthase (MECDP-synthase) (MECPP-synthase) (MECPS) (EC 4.6.1.12)",ispF slr1542,3,*
+sll1635,-0.6142900959,0.00E+00,4,TRUE,FALSE,P73053,Flavin-dependent thymidylate synthase (FDTS) (EC 2.1.1.148) (FAD-dependent thymidylate synthase) (Thymidylate synthase ThyX) (TS) (TSase),thyX sll1635,3,*
+slr0447,-0.620942573,2.63E-10,10,TRUE,FALSE,P74390,Negative aliphatic amidase regulator,amiC,1,*
+slr0899,-0.6282353089,7.76E-13,5,TRUE,FALSE,Q55367,Cyanate hydratase (Cyanase) (EC 4.2.1.104) (Cyanate hydrolase) (Cyanate lyase),cynS slr0899,3,*
+slr1216,-0.6647104177,3.16E-08,3,TRUE,FALSE,P73368,Magnesium transporter MgtE,mgtE,2,*
+sll0635,-0.7202589636,0.00E+00,3,TRUE,FALSE,P72965,Thiamine-phosphate synthase (TP synthase) (TPS) (EC 2.5.1.3) (Thiamine-phosphate pyrophosphorylase) (TMP pyrophosphorylase) (TMP-PPase),thiE sll0635,3,*
+sll1653,-0.7421688704,5.61E-08,5,TRUE,FALSE,P72818,"2-phytyl-1,4-naphtoquinone methyltransferase (EC 2.1.1.329) (Demethylphylloquinone methyltransferase)",menG sll1653,2,*
+slr1622,-0.7932662821,0.00E+00,11,TRUE,FALSE,P80507,Inorganic pyrophosphatase (EC 3.6.1.1) (Pyrophosphate phospho-hydrolase) (PPase),ppa ipyR slr1622,5,*
+sll0135,-0.833775248,2.08E-06,2,TRUE,FALSE,P0DJF8,S-methyl-5'-thioadenosine phosphorylase (EC 2.4.2.28) (5'-methylthioadenosine phosphorylase) (MTA phosphorylase) (MTAP),mtnP sll0135,3,*
+slr1739,-0.8944936659,7.73E-14,4,TRUE,FALSE,P73731,Photosystem II reaction center Psb28 protein,slr1739,1,*
+slr1476,-0.9013349287,3.12E-13,3,TRUE,FALSE,P74163,Aspartate carbamoyltransferase (EC 2.1.3.2) (Aspartate transcarbamylase) (ATCase),pyrB slr1476,2,*
+sll1138,-0.9530340113,4.58E-08,2,TRUE,FALSE,P73470,Sll1138 protein,sll1138,1,*
+sll1194,-1.012860762,0.00E+00,8,TRUE,FALSE,Q55332,Photosystem II 12 kDa extrinsic protein (PS II complex 12 kDa extrinsic protein) (PSII-U),psbU sll1194,4,*
+sll1556,-1.11995319,3.21E-09,2,TRUE,FALSE,P74287,Isopentenyl-diphosphate delta-isomerase (IPP isomerase) (EC 5.3.3.2) (Isopentenyl diphosphate:dimethylallyl diphosphate isomerase) (Isopentenyl pyrophosphate isomerase) (Type 2 isopentenyl diphosphate isomerase) (IDI-2),fni sll1556,3,*
+slr1452,-4.686151411,0.00E+00,9,TRUE,TRUE,Q01903,Sulfate-binding protein,sbpA slr1452,2,*

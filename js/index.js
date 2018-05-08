@@ -5,6 +5,9 @@ function MetabolicGraph(parent, model, options) {
 	this.model = model;
 	this.options = (options) ? options : {};
 
+	// Remove all in parent
+	while (parent.lastChild) parent.removeChild(parent.lastChild);
+
 	this.element = document.createElement("div");
 	this.element.className = "synechocystis-graph";
 
@@ -16,8 +19,8 @@ function MetabolicGraph(parent, model, options) {
 
 	if (parent) parent.appendChild(this.element);
 
-	this.element.scrollLeft = 1000;
-	this.element.scrollTop = 1000;
+	parent.scrollLeft = 1000;
+	parent.scrollTop = 1000;
 }
 
 // TODO Generate intelligently
@@ -57,6 +60,81 @@ const specialMetabolites = {
 };
 
 MetabolicGraph.prototype.setReactions = function(list) {
+	if (this.options.hideMetabolites) {
+		this.setReactions_hidemetabs(list);
+	} else {
+		this.setReactions_showmetabs(list);
+	}
+}
+
+MetabolicGraph.prototype.setReactions_hidemetabs = function(list) {
+	let reactions = [];
+	let reactData = this.options.reactionData;
+
+	for (var i=0; i<list.length; i++) {
+		let r = null;
+
+		if (typeof list[i] == "string") {
+			r = this.model.getReactionById(list[i]);
+		} else {
+			r = list[i];
+		}
+
+		if (!r) continue;
+		if (reactData && this.options.skipMissing && !reactData.hasOwnProperty(r.id)) continue;
+		reactions.push(r);
+
+		/*for (var x in r.metabolites) {
+			if (!specialMetabolites.hasOwnProperty(x)) {
+				if (r.metabolites[x]) {
+					metabs[x] = r.metabolites[x];
+				} else {
+					metabs[x] = {
+						name: "MISSING"
+					};
+				}
+			}
+		}*/
+	}
+
+	var nodes = {};
+	var links = [];
+	var maxdata = 0.001;
+	if (reactData) {
+		for (var i=0; i<reactions.length; i++) {
+			let data = reactData[reactions[i].id];
+			if (Math.abs(data) > maxdata) maxdata = Math.abs(data);
+		}
+	}
+
+	var datascale = 5.0 / maxdata;
+
+	for (var i=0; i<reactions.length; i++) {
+		let data = (reactData && reactData.hasOwnProperty(reactions[i].id)) ? reactData[reactions[i].id] : 0
+		let value = data*datascale + 1;
+		let blocked = Math.abs(data) < 0.00000000000001;
+		let missing = reactData && !reactData.hasOwnProperty(reactions[i].id);
+		nodes[reactions[i].id] = {id: reactions[i].id, name: reactions[i].name, data: value, val: value, type: "metabolite", dead: missing, noname: true};
+
+		for (var x in reactions[i].metabolites) {
+			if (!reactions[i].metabolites[x]) continue;
+			if (specialMetabolites.hasOwnProperty(x)) {
+				//nodes[x+reactions[i].id] = {"id": x+reactions[i].id, "name": x, "val": 3, type: "metabolite", blocked: blocked, data: 0.0};
+				//links.push({source: nodes[x+reactions[i].id], target: nodes[reactions[i].id], input: true, val: value, special: true, blocked: blocked, missing: missing});
+			} else {
+				for (var j=0; j<reactions[i].metabolites[x].reactions.length; j++) {
+					if (!nodes[reactions[i].metabolites[x].reactions[j].id]) continue;
+					links.push({source: nodes[reactions[i].metabolites[x].reactions[j].id], target: nodes[reactions[i].id], input: true, val: 1, blocked: blocked, missing: true});
+				}
+			}
+		}
+	}
+
+	// Update the d3 graph
+	this.graphData({nodes: nodes, links: links}, 200, -300);
+}
+
+MetabolicGraph.prototype.setReactions_showmetabs = function(list) {
 	let reactions = [];
 	let metabs = {};
 	let maxmdata = 0.0;
@@ -73,16 +151,23 @@ MetabolicGraph.prototype.setReactions = function(list) {
 		}
 
 		if (!r) continue;
+		if (reactData && this.options.skipMissing && !reactData.hasOwnProperty(r.id)) continue;
 		reactions.push(r);
 
 		for (var x in r.metabolites) {
 			if (!specialMetabolites.hasOwnProperty(x)) {
-				metabs[x] = r.metabolites[x];
-				//metanal.productionFlux(metabs[x]);
-				if (metabData) {
-					let data = metabData[x];
-					if (data > maxmdata) maxmdata = data;
-				}	
+				if (r.metabolites[x]) {
+					metabs[x] = r.metabolites[x];
+					//metanal.productionFlux(metabs[x]);
+					if (metabData) {
+						let data = metabData[x];
+						if (data > maxmdata) maxmdata = data;
+					}	
+				} else {
+					metabs[x] = {
+						name: "MISSING"
+					};
+				}
 			}
 		}
 	}
@@ -92,13 +177,14 @@ MetabolicGraph.prototype.setReactions = function(list) {
 	var nodes = {};
 	for (var x in metabs) {
 		nodes[x] = {
+			origin: metabs[x],
 			"id": x,
 			"name": x,
 			"val": 3,
 			type: "metabolite",
 			fullname: metabs[x].name,
-			data: (metabData && metabData.hasOwnProperty(x)) ? metabData[x] * mdatascale : 5,
-			dead: !metabData || !metabData.hasOwnProperty(x) || metabData[x] == 0
+			data: (metabData && metabData.hasOwnProperty(x)) ? metabData[x] * mdatascale : 0,
+			dead: (metabData && (!metabData.hasOwnProperty(x) || metabData[x] == 0)) || !metabData
 		};
 	}
 
@@ -108,42 +194,76 @@ MetabolicGraph.prototype.setReactions = function(list) {
 	if (reactData) {
 		for (var i=0; i<reactions.length; i++) {
 			let data = reactData[reactions[i].id];
-			if (data > maxdata) maxdata = data;
+			if (Math.abs(data) > maxdata) maxdata = Math.abs(data);
 		}
 	}
 
-	var datascale = 5.0 / maxdata;
+	var datascale = 10.0 / maxdata;
 
 	for (var i=0; i<reactions.length; i++) {
 		let data = (reactData && reactData.hasOwnProperty(reactions[i].id)) ? reactData[reactions[i].id] : 0
 		let value = data*datascale + 1;
 		let blocked = Math.abs(data) < 0.00000000000001;
-		nodes[reactions[i].id] = {id: reactions[i].id, name: reactions[i].name, data: data, val: value, type: "reaction"};
+		let missing = reactData && !reactData.hasOwnProperty(reactions[i].id);
+		nodes[reactions[i].id] = {origin: reactions[i], id: reactions[i].id, name: reactions[i].name, data: data, val: value, type: "reaction"};
 
 		for (var x in reactions[i].inputs) {
 			if (specialMetabolites.hasOwnProperty(x)) {
+				if (this.options.hideSpecials) continue;
 				nodes[x+reactions[i].id] = {"id": x+reactions[i].id, "name": x, "val": 3, type: "metabolite", blocked: blocked, data: 0.0};
-				links.push({source: nodes[x+reactions[i].id], target: nodes[reactions[i].id], input: true, val: value, special: true, blocked: blocked});
+				links.push({origin: reactions[i], source: nodes[x+reactions[i].id], target: nodes[reactions[i].id], input: true, val: value, special: true, blocked: blocked, missing: missing});
 			} else {
-				links.push({source: nodes[x], target: nodes[reactions[i].id], input: true, val: value, blocked: blocked});
+				links.push({origin: reactions[i], source: nodes[x], target: nodes[reactions[i].id], input: true, val: value, blocked: blocked, missing: missing});
 			}
 		}
 
 		for (var x in reactions[i].outputs) {
 			if (specialMetabolites.hasOwnProperty(x)) {
+				if (this.options.hideSpecials) continue;
 				nodes[x+reactions[i].id] = {"id": x+reactions[i].id, "name": x, "val": 3, type: "metabolite", blocked: blocked, data: 0.0};
-				links.push({source: nodes[reactions[i].id], target: nodes[x+reactions[i].id], val: value, special: true, blocked: blocked});
+				links.push({origin: reactions[i], source: nodes[reactions[i].id], target: nodes[x+reactions[i].id], val: value, special: true, blocked: blocked, missing: missing});
 			} else {
-				links.push({source: nodes[reactions[i].id], target: nodes[x], val: value, blocked: blocked});
+				links.push({origin: reactions[i], source: nodes[reactions[i].id], target: nodes[x], val: value, blocked: blocked, missing: missing});
 			}
 		}
 	}
 
+	// TODO? Group metabolites by subsystem if possible
+
+	// TODO? Add invisible links between reactions in same subsystem
+	for (var x in this.model.subsystems) {
+		let s = this.model.subsystems[x].reactions;
+		for (var i=0; i<s.length; i++) {
+			if (!nodes[s[i].id]) continue;
+			for (var j=i+1; j<s.length; j++) {
+				if (!nodes[s[j].id]) continue;
+				links.push({source: nodes[s[i].id], target: nodes[s[j].id], val: 1, subsys: true, input: true});
+			}
+			//console.log("ADDING SUBSYS LINKS");
+		}
+	}
+
 	// Update the d3 graph
-	this.graphData({nodes: nodes, links: links});
+	this.graphData({nodes: nodes, links: links}, function(link) {
+		/*if (link.target.type == "metabolite") {
+			if (link.target.origin.subsystems && link.target.origin.subsystems.hasOwnProperty(link.origin.subsystem)) {
+				return 100 - 70 * link.target.origin.subsystems[link.origin.subsystem];
+			} else {
+				return 100;
+			}
+		} else {
+			if (link.source.origin.subsystems && link.source.origin.subsystems.hasOwnProperty(link.origin.subsystem)) {
+				return 100 - 70 * link.source.origin.subsystems[link.origin.subsystem];
+			} else {
+				return 100;
+			}
+		}*/
+		//return 60; //130 - 10 * Math.abs(link.val);
+		return (link.subsys) ? 100 : 40;
+	}, -100);
 }
 
-MetabolicGraph.prototype.graphData = function(data) {
+MetabolicGraph.prototype.graphData = function(data, dist, charge) {
 	var width = 2000,
     height = 2000;
 
@@ -151,8 +271,9 @@ MetabolicGraph.prototype.graphData = function(data) {
 		.nodes(d3.values(data.nodes))
 		.links(data.links)
 		.size([width, height])
-		.linkDistance(60)
-		.charge(-300)
+		.linkDistance(dist) //60
+		.charge(charge) // -300
+		.linkStrength(link => (link.subsys) ? 0.1 : 1)
 		.on("tick", tick)
 		.start();
 
@@ -183,28 +304,38 @@ MetabolicGraph.prototype.graphData = function(data) {
 		.data(force.links())
 	  .enter().append("svg:path")
 	//    .attr("class", function(d) { return "link " + d.type; })
-		.attr("class", function(d) { return ((d.special) ? "link special" : "link") + ((d.blocked) ? " blocked" : ""); })
-		.attr("style", function(d) { return "stroke-width: " + Math.round(d.val) + "px"; })
+		.attr("class", function(d) { return (d.subsys) ? "link invisible" : (((d.special) ? "link special" : "link") + ((d.blocked) ? " blocked" : "") + ((d.val < 0) ? " negative" : "") + ((d.missing) ? " missing" : "")); })
+		.attr("style", function(d) { return "stroke-width: " + Math.ceil(Math.abs(d.val)) + "px"; })
 		.attr("marker-end", function(d) { return (d.input) ? "" : "url(#end)"; });
 
 	// define the nodes
 	var node = svg.selectAll(".node")
 		.data(force.nodes())
 	  .enter().append("g")
-		.attr("class", function(d) { return ((d.special) ? "node special" : "node") + " " + d.type + ((d.blocked) ? " blocked" : "") + ((d.dead) ? " dead" : ""); })
+		.attr("class", function(d) { return ((d.special) ? "node special" : "node") + " " + d.type + ((d.blocked) ? " blocked" : "") + ((d.dead) ? " dead" : "") + ((d.val < 0) ? " negative" : ""); })
 		.call(force.drag);
 
 	// add the nodes
 	node.append("circle")
-		.attr("r", function(d) { return (d.type == "metabolite") ? 6 + Math.floor(d.data*4) : 2; })
+		.attr("r", function(d) { return (d.type == "metabolite") ? 3 + Math.floor(Math.abs(d.data)*4) : 3 + Math.floor(Math.abs(d.data)*8); })
 		.attr("title", function(d) { return d.name; })
 		.append("title").text(function(d) { return (d.type == "metabolite" && d.fullname) ? d.fullname : d.name; });
 
-	// add the text 
-	node.append("text")
-		.attr("x", 12)
-		.attr("dy", ".35em")
-		.text(function(d) { return (d.type == "metabolite") ? d.name.substring(2) : ""; });
+	if (!this.options.hideMetaboliteNames) {
+		// add the text 
+		node.append("text")
+			.attr("x", 12)
+			.attr("dy", ".35em")
+			.text(function(d) { return (d.type == "metabolite" && !d.noname) ? d.name.substring(2) : ""; });
+	}
+
+	if (this.options.showReactionNames) {
+		// add the text 
+		node.append("text")
+			.attr("x", 12)
+			.attr("dy", ".35em")
+			.text(function(d) { return (d.type == "metabolite") ? "" : ((d.name.length > 10) ? d.name.substring(0,10)+"..." : d.name); });
+	}
 
 	// add the curvy lines
 	function tick() {
