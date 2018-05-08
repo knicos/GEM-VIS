@@ -17,11 +17,12 @@ path.link.blocked {
 }
 
 path.link.missing {
-	stroke: rgba(0,0,0,0.3)
+	stroke: rgba(0,0,0,0.3);
+	stroke-dasharray: 2, 2;
 }
 
 path.link.invisible {
-	stroke: blue;
+	stroke: none;
 	stroke-dasharray: 2, 2;
 }
 

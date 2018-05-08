@@ -11,8 +11,8 @@ function MetabolicGraph(parent, model, options) {
 	this.element = document.createElement("div");
 	this.element.className = "synechocystis-graph";
 
-	var width = 2000,
-    height = 2000;
+	var width = 3000,
+    height = 3000;
 	this.svg = d3.select(this.element).append("svg")
 		.attr("width", width)
 		.attr("height", height);
@@ -198,6 +198,18 @@ MetabolicGraph.prototype.setReactions_showmetabs = function(list) {
 		}
 	}
 
+	// Generate colours
+	let subsys_colours = {};
+	let sscount = 0;
+	let sscount2 = 0;
+	for (var x in this.model.subsystems) {
+		sscount++;
+	}
+	for (var x in this.model.subsystems) {
+		subsys_colours[x] = selectColor(sscount2,sscount);
+		sscount2++;
+	}
+
 	var datascale = 10.0 / maxdata;
 
 	for (var i=0; i<reactions.length; i++) {
@@ -205,7 +217,8 @@ MetabolicGraph.prototype.setReactions_showmetabs = function(list) {
 		let value = data*datascale + 1;
 		let blocked = Math.abs(data) < 0.00000000000001;
 		let missing = reactData && !reactData.hasOwnProperty(reactions[i].id);
-		nodes[reactions[i].id] = {origin: reactions[i], id: reactions[i].id, name: reactions[i].name, data: data, val: value, type: "reaction"};
+		let col = subsys_colours[reactions[i].subsystem];
+		nodes[reactions[i].id] = {origin: reactions[i], id: reactions[i].id, colour: col, name: reactions[i].name, data: data, val: value, type: "reaction"};
 
 		for (var x in reactions[i].inputs) {
 			if (specialMetabolites.hasOwnProperty(x)) {
@@ -259,13 +272,18 @@ MetabolicGraph.prototype.setReactions_showmetabs = function(list) {
 			}
 		}*/
 		//return 60; //130 - 10 * Math.abs(link.val);
-		return (link.subsys) ? 100 : 40;
+		return 100; //(link.subsys) ? 100 : 40;
 	}, -100);
 }
 
+function selectColor(colorNum, colors){
+    if (colors < 1) colors = 1; // defaults to one color - avoid divide by zero
+    return "hsl(" + Math.floor(colorNum * (360 / colors) % 360) + ",100%,50%)";
+}
+
 MetabolicGraph.prototype.graphData = function(data, dist, charge) {
-	var width = 2000,
-    height = 2000;
+	var width = 3000,
+    height = 3000;
 
 	var force = d3.layout.force()
 		.nodes(d3.values(data.nodes))
@@ -273,7 +291,7 @@ MetabolicGraph.prototype.graphData = function(data, dist, charge) {
 		.size([width, height])
 		.linkDistance(dist) //60
 		.charge(charge) // -300
-		.linkStrength(link => (link.subsys) ? 0.1 : 1)
+		.linkStrength(link => (link.subsys) ? 1 : 0.1)
 		.on("tick", tick)
 		.start();
 
@@ -317,6 +335,7 @@ MetabolicGraph.prototype.graphData = function(data, dist, charge) {
 
 	// add the nodes
 	node.append("circle")
+		.attr("style", d => (d.type == "reaction") ? "fill: "+d.colour : "")
 		.attr("r", function(d) { return (d.type == "metabolite") ? 3 + Math.floor(Math.abs(d.data)*4) : 3 + Math.floor(Math.abs(d.data)*8); })
 		.attr("title", function(d) { return d.name; })
 		.append("title").text(function(d) { return (d.type == "metabolite" && d.fullname) ? d.fullname : d.name; });
