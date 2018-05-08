@@ -1,9 +1,11 @@
 //const ForceGraph3D = require('3d-force-graph');
 //const metanal = require('../metabolite-analysis.js');
+//const saveSvgAsPng = require("save-svg-as-png");
 
 function MetabolicGraph(parent, model, options) {
 	this.model = model;
 	this.options = (options) ? options : {};
+	this.force = null;
 
 	// Remove all in parent
 	while (parent.lastChild) parent.removeChild(parent.lastChild);
@@ -21,6 +23,14 @@ function MetabolicGraph(parent, model, options) {
 
 	parent.scrollLeft = 1000;
 	parent.scrollTop = 1000;
+
+	let button = document.createElement("button");
+	var me = this;
+	button.textContent = "Save";
+	button.onclick = function() {
+		saveSvgAsPng(me.svg, "model.png");
+	}
+	this.element.appendChild(button);
 }
 
 // TODO Generate intelligently
@@ -294,6 +304,7 @@ MetabolicGraph.prototype.graphData = function(data, dist, charge) {
 		.linkStrength(link => (link.subsys) ? 1 : 0.1)
 		.on("tick", tick)
 		.start();
+	this.force = force;
 
 	let svg = this.svg;
 
@@ -323,7 +334,7 @@ MetabolicGraph.prototype.graphData = function(data, dist, charge) {
 	  .enter().append("svg:path")
 	//    .attr("class", function(d) { return "link " + d.type; })
 		.attr("class", function(d) { return (d.subsys) ? "link invisible" : (((d.special) ? "link special" : "link") + ((d.blocked) ? " blocked" : "") + ((d.val < 0) ? " negative" : "") + ((d.missing) ? " missing" : "")); })
-		.attr("style", function(d) { return "stroke-width: " + Math.ceil(Math.abs(d.val)) + "px"; })
+		.attr("style", function(d) { return "stroke-width: " + Math.ceil(Math.abs(d.val)) + "px; stroke: rgba(255,0,0,"+(Math.abs(d.val)/10)+")"; })
 		.attr("marker-end", function(d) { return (d.input) ? "" : "url(#end)"; });
 
 	// define the nodes
