@@ -1,0 +1,47 @@
+Protein,IX,Log2 Fold,Sig1,Model,List,Category,Comment
+sll1356,268,0.7180427004,TRUE,*,A,glycogen metabolism,"glycogen breakdown, acts during autotrophic growth, essential for growth at high temperatures (1) -validated"
+slr1367,860,0.1160616694,TRUE,*,A,glycogen metabolism,"acts during heterotrophic growth, when CO2-fixation and the supply of glucose are limited (1) "
+sll1689,#N/A,,FALSE,,A,glycogen metabolism,group2 RNA polymerase sigma factor SigE. Induces oxidative pentose phosphate pathway and glycogen catabolism (3).
+sll1330,#N/A,,FALSE,,A,glycogen metabolism,"controlled by NtcA,  induced during  nitrogen depletion, activates transcript accumulation of sugar catabolic genes (4) (5)"
+sll1423,847,0.1253075474,FALSE,,A,glycogen metabolism,NtcA global nitrogen regulator
+slr1176,577,0.3319632295,TRUE,*,A,glycogen metabolism,"glycogen biosynthesis. Deletion of ADP-glucose pyrophosphorylase led to decreased chlorophyll a content and O2 evolution (in addition to decreased glycogen content) same as in AT-mutant (2). Even though no significant growth differences were detectable, obvious phenotypes of glycogen-deficient mutants (ΔglgA1/ΔglgA2, ΔglgC) were observed under strict photoautotrophic conditions: (i) elevated sensitivity to high light intensities (not shown) and to low inocula (Fig. 1a) and (ii) significant reduction in photosynthetic capacity. (6)"
+sll1393,622,0.2997867328,TRUE,+,A,glycogen metabolism,complementary isoforms with different elongation properties: GSI (sll1393) is processive and GSII (sll0945) is distributive. GSI may produce longer α-glucosyl chains than GSII. (7) (6)
+sll0945,419,0.4873831478,TRUE,+,A,glycogen metabolism,complementary isoforms with different elongation properties: GSI (sll1393) is processive and GSII (sll0945) is distributive. GSI may produce longer α-glucosyl chains than GSII. (7) (6)
+sll0158,241,0.7948140138,TRUE,*,A,glycogen metabolism,(8) –validated
+slr1334,675,0.2541110099,TRUE,,A,glycogen metabolism,phosphoglucomutase/phosphomannomutase
+sll0726,707,0.2297960524,TRUE,*,A,glycogen metabolism,phosphoglucomutase
+slr1349,724,0.217815243,TRUE,*,A,glycogen metabolism,glucose-6-phosphate isomerase
+sll1196,1199,-0.1684369223,TRUE,*,A,glycogen metabolism,phosphofruktokinase; regulator of glycolysis
+slr0749,#N/A,,FALSE,,A,chlorophyll and carotenoid levels,light-independent protochlorophyllide reductase iron protein subunit ChlL -validated
+slr0056,435,0.4715446748,TRUE,*,A,chlorophyll and carotenoid levels,chlorophyll a synthase
+slr1055,664,0.2593570103,TRUE,,A,chlorophyll and carotenoid levels,(anti-sigmafactor for SigE) magnesium protoporphyrin IX chelatase subunit H (9) 
+slr0739,789,0.1695370671,FALSE,*,A,chlorophyll and carotenoid levels,geranylgeranyl pyrophosphatate synthase
+slr1255,330,0.6008272583,FALSE,*,A,chlorophyll and carotenoid levels,phytoene synthase
+sll0849,693,0.238929004,TRUE,*,A,photosynthesis,photosystem II reaction center D2 protein (MP) –validated
+slr1311,644,0.2829641475,TRUE,*,A,photosynthesis,photosystem II D1 protein (MP) –validated
+sll0427,1054,-0.03329075966,FALSE,*,A,photosynthesis,photosystem II manganese-stabilizing polypeptide (MP) –validated
+sll1031,821,0.1450761515,FALSE,,A,effect of intracellular pH to the phenotype,pH indicator;  increased abundance of Ccm proteins relate to increased pH (and vice versa) (10) –validated
+slr0301,1122,-0.09933113034,FALSE,*,A,Enhanced growth of the mutant/ utilization of the TCA cycle,phosphoenolpyruvate synthase
+sll0587,256,0.7517904675,TRUE,+,A,Enhanced growth of the mutant/ utilization of the TCA cycle,pyruvate kinase 1 and 2
+sll1275,298,0.6587065632,TRUE,+,A,Enhanced growth of the mutant/ utilization of the TCA cycle,pyruvate kinase 1 and 2
+sll0401,1040,-0.01845202558,FALSE,*,A,Enhanced growth of the mutant/ utilization of the TCA cycle,citrate synthase
+slr1289,912,0.06835105571,FALSE,*,A,Enhanced growth of the mutant/ utilization of the TCA cycle,isocitrate dehydrogenase
+sll1981,384,0.5307993463,TRUE,*,A,Enhanced growth of the mutant/ utilization of the TCA cycle,acetolactate synthase
+slr0710,464,0.438158998,TRUE,*,B,α ketoglutarate (TCA-cycle) derived amino acid biosynthesis,Glutamate dehydrogenase  (NADP+)
+slr1756,826,0.1408964965,FALSE,,B,α ketoglutarate (TCA-cycle) derived amino acid biosynthesis,lutamine synthetase
+slr0186,1528,-0.6009021266,TRUE,+,B,α ketoglutarate (TCA-cycle) derived amino acid biosynthesis,Isopropylmalate synthase slr0186 (inhibited by leusin (and valine) as a feedback inhibition)
+sll1564,#N/A,,FALSE,,B,α ketoglutarate (TCA-cycle) derived amino acid biosynthesis,putative lyase (leucine biosynthetic process)
+sll0728,480,0.4227772943,TRUE,+,B,lipid biosynthesis,acetyl-coA carboxylase (catalyzes the first limiting step of fatty acid biosynthesis) -validated
+slr1511,856,0.116529497,FALSE,*,B,lipid biosynthesis,"fabH, 3-oxoacyl-[acyl-carrier-protein] synthase III -validated"
+slr1993,715,0.2263806434,TRUE,*,B,PHB biosynthesis & breakdown,PHA-specific beta-ketothiolase
+slr1994,798,0.1630644345,TRUE,*,B,PHB biosynthesis & breakdown,PHA-specific acetoacetyl-CoA reductase)
+slr1829,421,0.4850696242,TRUE,*,B,PHB biosynthesis & breakdown,heterodimeric PHB synthase PhaEC (slr1829; putative poly(3-hydroxyalkanoate) synthase component
+slr1830,1134,-0.1082724139,FALSE,*,B,PHB biosynthesis & breakdown,poly(3-hydroxyalkanoate) synthase; referred in literature as PHB Synthase).
+ssl2501,#N/A,,FALSE,,B,PHB biosynthesis & breakdown,"PhaP) has negative effect on the biosynthetic activity of PHB synthase. “Ssl2501 encodes a cyanobacterial phasin, which regulates the surface-to-volume ratio of PHB granules.” Hauf et al. 2015 "
+P32705,2,7.243929119,TRUE,**,C,acetate metabolism,acetate transporter yjcG (from E. coli)
+sll0542,108,1.407772632,TRUE,*,C,acetate metabolism,(acetyl-CoA synthetase) - validated
+slr0812,#N/A,,FALSE,,C,acetate metabolism,(pantothenate kinase) –no existing spectra
+sll1299,#N/A,,FALSE,,C,acetate metabolism,(ackA; acetate kinase)
+slr2132,1626,-0.8591803839,FALSE,*,C,acetate metabolism,(pta; phosphotransacetylase)
+ssl2982,1012,0.00004743235003,FALSE,,D,Housekeeping proteins,probable DNA-directed RNA polymerase omega subunit
+sll0698,378,0.5342577993,FALSE,,D,Housekeeping proteins,"drug sensory protein A, low temperature sensor, two-component sensor histidine kinase"

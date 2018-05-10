@@ -10,8 +10,11 @@ function Dialog(element, cb) {
 	this.subsystem_select = null;
 	this.label_column_select = null;
 	this.data_column_select = null;
+	this.label_column_anno = null;
+	this.data_column_anno = null;
 	this.cb = cb;
 	this.annotationsCSV = null;
+	this.annotations = null;
 
 	// Google Sheets API
 
@@ -19,30 +22,26 @@ function Dialog(element, cb) {
 
 	// Choose model
 	this.modelSelector();
+	this.attributeSelector();
+	// Choose reactions or reaction sets.
+	this.reactionSelector();
 
 	this.element.appendChild(document.createElement("hr"));
 
 	this.dataFile();
-	this.attributeSelector();
 	this.selectColumns();
 
 	this.element.appendChild(document.createElement("hr"));
 
 	this.annotationFile();
-
-	this.element.appendChild(document.createElement("hr"));
-
-	// Choose reactions or reaction sets.
-	this.reactionSelector();
-
-	// TODO Visualisation options
-	// Don't show metabolites
-	// Color for data, or node size, or both
+	this.annotationColumns();
 
 	this.element.appendChild(document.createElement("hr"));
 
 	this.optelements = [];
 	this.addOptions();
+
+	this.element.appendChild(document.createElement("hr"));
 
 	// Buttons
 	this.buttons();
@@ -148,57 +147,84 @@ Dialog.prototype.attributeSelector = function() {
 		me.generateDataFromCSV();
 	}
 
-	this.element.appendChild(formEntry("Attribute", select));
+	this.element.appendChild(formEntry("Index", select));
+}
+
+// Return an array of the selected opion values
+// select is an HTML select element
+function getSelectValues(select) {
+  var result = [];
+  var options = select && select.options;
+  var opt;
+
+  for (var i=0, iLen=options.length; i<iLen; i++) {
+    opt = options[i];
+
+    if (opt.selected) {
+      result.push(opt.value || opt.text);
+    }
+  }
+  return result;
 }
 
 Dialog.prototype.reactionSelector = function() {
 	let me = this;
 
-	let select = document.createElement("select");
+	/*let select = document.createElement("select");
 	select.setAttribute("multiple",true);
 	this.reaction_select = select;
-	this.element.appendChild(formEntry("Reactions",select));
+	this.element.appendChild(formEntry("Reactions",select));*/
 
 	let subselect = document.createElement("select");
 	this.subsystem_select = subselect;
+	subselect.setAttribute("multiple",true);
 	this.element.appendChild(formEntry("Subsystems",subselect));
 	subselect.onchange = function(e) {
-		if (e.target.value == "all") {
-			me.reaction_list = me.model.reactions;
-		} else if (e.target.value == "allenz") {
-			me.reaction_list = me.model.reactions.filter(a => a.ec != "");
-		} else if (e.target.value == "SKIP") {
-			// Nothing
-		} else if (e.target.value != "alldata") {
-			me.reaction_list = me.model.subsystems[e.target.value].reactions;
-		} else {
-			var rl = [];
-			if (me.data) {
-				for (var x in me.data) {
-					if (x === undefined || x.trim() == "") continue;
-					rl.push(x);
+		let values = getSelectValues(e.target);
+		me.reaction_list = [];
+
+		console.log("SELECTED",values);
+
+		for (var i=0; i<values.length; i++) {
+			if (values[i] == "all") {
+				me.reaction_list.push.apply(me.reaction_list,me.model.reactions);
+			} else if (values[i] == "allenz") {
+				me.reaction_list.push.apply(me.reaction_list,me.model.reactions.filter(a => a.ec != ""));
+			} else if (values[i] == "SKIP") {
+				// Nothing
+			} else if (values[i] != "alldata") {
+				me.reaction_list.push.apply(me.reaction_list,me.model.subsystems[values[i]].reactions);
+			} else {
+				var rl = [];
+				if (me.data) {
+					for (var x in me.data) {
+						if (x === undefined || x.trim() == "") continue;
+						rl.push(x);
+					}
 				}
+				console.log(rl);
+				me.reaction_list.push.apply(me.reaction_list,rl);
 			}
-			console.log(rl);
-			me.reaction_list = rl;
 		}
+
+		console.log("REACTIONS", me.reaction_list);
 	}
 }
 
 Dialog.prototype.updateReactions = function(model) {
-	while (this.reaction_select.lastChild) this.reaction_select.removeChild(this.reaction_select.lastChild);
+	/*while (this.reaction_select.lastChild) this.reaction_select.removeChild(this.reaction_select.lastChild);
 
 	for (var i=0; i<model.reactions.length; i++) {
 		let opt = document.createElement("option");
 		opt.textContent = model.reactions[i].name;
 		opt.value = model.reactions[i].id;
 		this.reaction_select.appendChild(opt);
-	}
+	}*/
 
 	// Subsystems
 	while (this.subsystem_select.lastChild) this.subsystem_select.removeChild(this.subsystem_select.lastChild);
 
-	this.subsystem_select.appendChild(document.createElement("option"));
+	//this.subsystem_select.appendChild(document.createElement("option"));
 	let allopt = document.createElement("option");
 	allopt.textContent = "All";
 	allopt.value = "all";
@@ -206,6 +232,10 @@ Dialog.prototype.updateReactions = function(model) {
 	allopt = document.createElement("option");
 	allopt.textContent = "All in data";
 	allopt.value = "alldata";
+	this.subsystem_select.appendChild(allopt);
+	allopt = document.createElement("option");
+	allopt.textContent = "All in annotations";
+	allopt.value = "allanno";
 	this.subsystem_select.appendChild(allopt);
 	allopt = document.createElement("option");
 	allopt.textContent = "All Enzymes";
@@ -275,10 +305,57 @@ Dialog.prototype.annotationFile = function() {
 
 			me.annotationsCSV = csv;
 
-			//me.updateColumnsCSV(csv);
+			me.updateAnnoColumns(csv);
 		}
 		reader.readAsText(file);
 	}
+}
+
+Dialog.prototype.annotationColumns = function() {
+	let me = this;
+
+	let select = document.createElement("select");
+	let dselect = document.createElement("select");
+
+	this.label_column_anno = select;
+	this.element.appendChild(formEntry("Index Column",select));
+	select.onchange = function(e) {
+		//me.label_col = parseInt(e.target.value);
+		//me.generateDataFromCSV();
+		me.generateAnnotations(select.value, dselect.value);
+	}
+
+	this.data_column_anno = dselect;
+	this.element.appendChild(formEntry("Text Column",dselect));
+	dselect.onchange = function(e) {
+		//console.log(e);
+		//me.data_col = parseInt(e.target.value);
+		//me.generateDataFromCSV();
+		me.generateAnnotations(select.value, dselect.value);
+	}
+}
+
+Dialog.prototype.generateAnnotations = function(index, text) {
+	let data = {};
+	let isgene = this.attribute == "gene";
+
+	for (var i=1; i<this.annotationsCSV.length; i++) {
+		let l = this.annotationsCSV[i][index].trim();
+		let t = this.annotationsCSV[i][text];
+
+		if (isgene) {
+			let r = this.model.genes[l];
+			if (!r) continue;
+			for (var j=0; j<r.length; j++) {
+				data[r[j].id] = t;
+			}
+		} else {
+			data[l] = t;
+		}
+	}
+
+	console.log("Annotations", data);
+	this.annotations = data;
 }
 
 Dialog.prototype.selectColumns = function() {
@@ -286,7 +363,7 @@ Dialog.prototype.selectColumns = function() {
 
 	let select = document.createElement("select");
 	this.label_column_select = select;
-	this.element.appendChild(formEntry("Label Column",select));
+	this.element.appendChild(formEntry("Index Column",select));
 	select.onchange = function(e) {
 		me.label_col = parseInt(e.target.value);
 		me.generateDataFromCSV();
@@ -300,6 +377,31 @@ Dialog.prototype.selectColumns = function() {
 		console.log(e);
 		me.data_col = parseInt(e.target.value);
 		me.generateDataFromCSV();
+	}
+}
+
+Dialog.prototype.updateAnnoColumns = function(csv) {
+	//console.log("Update Columns", csv);
+
+	while (this.label_column_anno.lastChild) this.label_column_anno.removeChild(this.label_column_anno.lastChild);
+
+	this.label_column_anno.appendChild(document.createElement("option"));
+	for (var i=0; i<csv[0].length; i++) {
+		let opt = document.createElement("option");
+		opt.textContent = csv[0][i];
+		opt.value = i;
+		this.label_column_anno.appendChild(opt);
+	}
+
+	while (this.data_column_anno.lastChild) this.data_column_anno.removeChild(this.data_column_anno.lastChild);
+
+	this.data_column_anno.appendChild(document.createElement("option"));
+	for (var i=0; i<csv[0].length; i++) {
+		let opt = document.createElement("option");
+		if (i == 1) opt.setAttribute("default", true);
+		opt.textContent = csv[0][i];
+		opt.value = i;
+		this.data_column_anno.appendChild(opt);
 	}
 }
 
@@ -340,7 +442,8 @@ Dialog.prototype.addOptions = function() {
 		"showReactionNames": false,
 		"removeIsolated": true,
 		"subsystemCluster": true,
-		"hideZero": false
+		"hideZero": false,
+		"showAnnotationLabels": true
 	};
 
 	for (var x in opts) {
@@ -407,7 +510,8 @@ Dialog.prototype.buttons = function() {
 			model: me.model,
 			reactionData: (me.attribute != "metabolite") ? me.data : null,
 			metaboliteData: (me.attribute == "metabolite") ? me.data : null,
-			reactions: me.reaction_list
+			reactions: me.reaction_list,
+			annotations: me.annotations
 		}
 
 		for (var i=0; i<me.optelements.length; i++) {

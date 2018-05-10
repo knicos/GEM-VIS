@@ -172,6 +172,7 @@ MetabolicGraph.prototype.setReactions_hidemetabs = function(list) {
 			count: 0,
 			type: "reaction",
 			blocked: blocked,
+			annotated: this.options.annotations && this.options.annotations[reactions[i].id],
 			x: pos[0], y: pos[1]
 		};
 	}
@@ -518,6 +519,10 @@ function pathStyle(d) {
 	return "stroke-width: " + Math.ceil(Math.abs(d.val)) + "px; stroke: rgba(255,0,0,"+val+")";
 }
 
+function nodeStyle(d) {
+	return (d.type == "reaction") ? "fill: "+d.colour+";" + ((d.annotated) ? " stroke-width: 5px;" : "") : "";
+}
+
 MetabolicGraph.prototype.displaySubsystems = function(force, svg, colours) {
 	let nodes = force.nodes();
 	let subsyspos = {};
@@ -647,9 +652,9 @@ MetabolicGraph.prototype.graphData = function(data, dist, charge, cols) {
 
 	// add the nodes
 	node.append("circle")
-		.attr("style", d => (d.type == "reaction") ? "fill: "+d.colour : "")
+		.attr("style", d => nodeStyle(d))
 		.attr("fill", d => (d.colour) ? d.colour : "#eee")
-		.attr("stroke", d=> (d.extra || d.blocked) ? "none" : "#222")
+		.attr("stroke", d=> (d.extra || d.blocked) ? "none" : (d.annotated) ? "yellow" : "#222")
 		.attr("r", function(d) { return (d.type == "metabolite") ? 3 + Math.floor(Math.abs(d.data)*4) : 4 + Math.floor(Math.abs(d.data)*8); })
 		.attr("title", function(d) { return d.name; })
 		.append("title").text(function(d) { return (d.type == "metabolite" && d.fullname) ? d.fullname : d.name; });

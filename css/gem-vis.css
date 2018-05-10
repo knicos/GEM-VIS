@@ -107,10 +107,18 @@ label {
 }
 
 input {
-	flex-grow: 2;
+	/*flex-grow: 2;*/
 }
 
 select {
+	width: 60%;
+}
 
+select[multiple] {
+	height: 10em;
+}
+
+hr {
+	width: 100%;
 }
 
