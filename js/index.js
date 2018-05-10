@@ -78,6 +78,15 @@ MetabolicGraph.prototype.setReactions = function(list) {
 	}
 }
 
+let excluded = {
+		"General": true,
+		"Biomass": true,
+		"Others": true,
+		"Exchange reactions": true,
+		"Modeling": true,
+		"Transport": true
+	};
+
 MetabolicGraph.prototype.setReactions_hidemetabs = function(list) {
 	let reactions = [];
 	let reactData = this.options.reactionData;
@@ -118,31 +127,166 @@ MetabolicGraph.prototype.setReactions_hidemetabs = function(list) {
 		}
 	}
 
-	var datascale = 5.0 / maxdata;
+	// Tally represented subsystems.
+	let subsystems = {};
+	for (var i=0; i<reactions.length; i++) {
+		subsystems[reactions[i].subsystem] = true;
+	}
+
+	// Generate colours and positions for subsystems
+	let subsys_colours = {};
+	let subsys_positions = {};
+	let sscount = 0;
+	let sscount2 = 0;
+	for (var x in subsystems) {
+		sscount++;
+	}
+	for (var x in subsystems) {
+		subsys_colours[x] = selectColor(sscount2,sscount);
+		subsys_positions[x] = rotate(1500,1500, 1900, 1500, ((2*Math.PI) / sscount) * sscount2);
+		sscount2++;
+	}
+
+	var datascale = 10.0 / maxdata;
+	let maxcount = 0;
 
 	for (var i=0; i<reactions.length; i++) {
 		let data = (reactData && reactData.hasOwnProperty(reactions[i].id)) ? reactData[reactions[i].id] : 0
 		let value = data*datascale + 1;
 		let blocked = Math.abs(data) < 0.00000000000001;
-		let missing = reactData && !reactData.hasOwnProperty(reactions[i].id);
-		nodes[reactions[i].id] = {id: reactions[i].id, name: reactions[i].name, data: value, val: value, type: "metabolite", dead: missing, noname: true};
+		//let col = (excluded[reactions[i].subsystem]) ? "#eee" : subsys_colours[reactions[i].subsystem];
+		let col = (blocked) ? "blue" : (data < 0) ? "green" : "red";
+		let pos = subsys_positions[reactions[i].subsystem];
 
-		for (var x in reactions[i].metabolites) {
+		if (this.options.hideZero && blocked) continue;
+
+		// Create a reaction node
+		nodes[reactions[i].id] = {
+			origin: reactions[i],
+			id: reactions[i].id,
+			colour: col,
+			name: reactions[i].name,
+			data: data,
+			val: value,
+			radius: 4 + Math.floor(Math.abs(data)*8),
+			count: 0,
+			type: "reaction",
+			blocked: blocked,
+			x: pos[0], y: pos[1]
+		};
+	}
+
+	for (var i=0; i<reactions.length; i++) {
+		let data = (reactData && reactData.hasOwnProperty(reactions[i].id)) ? reactData[reactions[i].id] : 0
+		//let value = data*datascale + 1;
+		let blocked = Math.abs(data) < 0.00000000000001;
+		let missing = reactData && !reactData.hasOwnProperty(reactions[i].id);
+
+		if (this.options.hideZero && blocked) continue;
+
+		for (var x in reactions[i].outputs) {
 			if (!reactions[i].metabolites[x]) continue;
-			if (specialMetabolites.hasOwnProperty(x)) {
+
+			let value = data; //(data / Math.sqrt(reactions[i].metabolites[x].producers.length));
+			//if (Math.abs(value) < 0.01*maxdata) continue;
+			let insig = Math.abs(value) / reactions[i].metabolites[x].producers.length < 0.01*maxdata;
+			value /= reactions[i].metabolites[x].consumers.length;
+			if (insig) continue;
+
+			let visited = {};
+
+			//if (specialMetabolites.hasOwnProperty(x)) {
 				//nodes[x+reactions[i].id] = {"id": x+reactions[i].id, "name": x, "val": 3, type: "metabolite", blocked: blocked, data: 0.0};
 				//links.push({source: nodes[x+reactions[i].id], target: nodes[reactions[i].id], input: true, val: value, special: true, blocked: blocked, missing: missing});
-			} else {
-				for (var j=0; j<reactions[i].metabolites[x].reactions.length; j++) {
-					if (!nodes[reactions[i].metabolites[x].reactions[j].id]) continue;
-					links.push({source: nodes[reactions[i].metabolites[x].reactions[j].id], target: nodes[reactions[i].id], input: true, val: 1, blocked: blocked, missing: true});
+			//} else {
+				for (var j=0; j<reactions[i].metabolites[x].consumers.length; j++) {
+					let con = reactions[i].metabolites[x].consumers[j];
+
+					if (visited[con.id]) continue;
+					visited[con.id] = true;
+
+					// Insert missing target reactions
+					if (!nodes[con.id]) {
+
+						// Exclude some (virtual) reactions always
+						if (con.subsystem == "Biomass" || con.subsystem == "General") continue;
+
+						// Create a reaction node
+						nodes[con.id] = {
+							extra: true,
+							origin: con,
+							id: con.id,
+							colour: "#222", //subsys_colours[con.subsystem],
+							name: con.name,
+							radius: 4 + Math.floor(0.1*8),
+							data: 0.1,
+							val: 0,
+							count: 0,
+							type: "reaction"
+						};
+					}
+
+					nodes[con.id].count++;
+					nodes[reactions[i].id].count++;
+					//links.push({source: nodes[reactions[i].metabolites[x].reactions[j].id], target: nodes[reactions[i].id], input: true, val: 1, blocked: blocked, missing: true});
+					if (nodes[con.id].count > maxcount) maxcount = nodes[con.id].count;
+									
+					links.push({
+						origin: reactions[i],
+						target: nodes[con.id],
+						source: nodes[reactions[i].id],
+						input: false,
+						val: value*3*datascale, // + ((value < 0) ? -1 : 1),
+						blocked: blocked,
+						missing: missing,
+						special: nodes[con.id].extra == true
+					});
 				}
+			//}
+		}
+	}
+
+	// Filter isolated nodes and links (with only an in or out)
+	if (this.options.removeIsolated) {
+		for (var x in nodes) {
+			let n = nodes[x];
+			if (n.count <= 0) {
+				//nodes.splice(i,1);
+				//i--;
+				delete nodes[x];
+			}
+		}
+	}
+
+	// TODO? Group metabolites by subsystem if possible
+
+	let subsyscount = {};
+
+	// Add invisible links between reactions in same subsystem
+	if (this.options.subsystemCluster) {
+		for (var x in this.model.subsystems) {
+			if (excluded[x]) continue;
+
+			subsyscount[x] = 0;
+			let s = this.model.subsystems[x].reactions;
+			for (var i=0; i<s.length; i++) {
+				if (!nodes[s[i].id]) continue;
+				for (var j=i+1; j<s.length; j++) {
+					if (!nodes[s[j].id]) continue;
+					subsyscount[x]++;
+					links.push({source: nodes[s[i].id], name: x, target: nodes[s[j].id], val: 1, subsys: true, input: true});
+				}
+				//console.log("ADDING SUBSYS LINKS");
 			}
 		}
 	}
 
 	// Update the d3 graph
-	this.graphData({nodes: nodes, links: links}, 200, -300);
+	let me = this;
+	this.graphData({nodes: nodes, links: links}, function(link) {
+		let count = ((link.target.count > link.source.count) ? link.target.count-1 : link.source.count-1) / (maxcount-1);
+		return (link.subsys) ? Math.floor(10 + 5*Math.sqrt(subsyscount[link.name])) : Math.floor(40 + count*20);
+	}, -300, subsys_colours);
 }
 
 function rotate(cx, cy, x, y, angle) {
@@ -153,6 +297,10 @@ function rotate(cx, cy, x, y, angle) {
         ny = (cos * (y - cy)) - (sin * (x - cx)) + cy;
     return [nx, ny];
 }
+
+//----------------------------------------------------------------
+// Include METABOLITES
+//----------------------------------------------------------------
 
 MetabolicGraph.prototype.setReactions_showmetabs = function(list) {
 	let reactions = [];
@@ -209,7 +357,7 @@ MetabolicGraph.prototype.setReactions_showmetabs = function(list) {
 		};
 	}
 
-
+	// Find max data value in reactions list
 	var links = [];
 	var maxdata = 0.001;
 	if (reactData) {
@@ -219,7 +367,7 @@ MetabolicGraph.prototype.setReactions_showmetabs = function(list) {
 		}
 	}
 
-	// Generate colours
+	// Generate colours and positions for subsystems
 	let subsys_colours = {};
 	let subsys_positions = {};
 	let sscount = 0;
@@ -243,6 +391,10 @@ MetabolicGraph.prototype.setReactions_showmetabs = function(list) {
 		let missing = reactData && !reactData.hasOwnProperty(reactions[i].id);
 		let col = subsys_colours[reactions[i].subsystem];
 		let pos = subsys_positions[reactions[i].subsystem];
+
+		if (this.options.hideZero && blocked) continue;
+
+		// Create a reaction node
 		nodes[reactions[i].id] = {
 			origin: reactions[i],
 			id: reactions[i].id,
@@ -250,10 +402,11 @@ MetabolicGraph.prototype.setReactions_showmetabs = function(list) {
 			name: reactions[i].name,
 			data: data,
 			val: value,
-			type: "reaction",
-			x: pos[0], y: pos[1]
+			type: "reaction"
+			//x: pos[0], y: pos[1]
 		};
 
+		// Create links to each metabolite input
 		for (var x in reactions[i].inputs) {
 			if (specialMetabolites.hasOwnProperty(x)) {
 				if (this.options.hideSpecials) continue;
@@ -262,10 +415,19 @@ MetabolicGraph.prototype.setReactions_showmetabs = function(list) {
 			} else {
 				nodes[x].count++;
 				if (nodes[x].count > maxcount) maxcount = nodes[x].count;
-				links.push({origin: reactions[i], source: nodes[x], target: nodes[reactions[i].id], input: true, val: value, blocked: blocked, missing: missing});
+				links.push({
+					origin: reactions[i],
+					source: nodes[x],
+					target: nodes[reactions[i].id],
+					input: true,
+					val: value,
+					blocked: blocked,
+					missing: missing
+				});
 			}
 		}
 
+		// Create links to each metabolite output
 		for (var x in reactions[i].outputs) {
 			if (specialMetabolites.hasOwnProperty(x)) {
 				if (this.options.hideSpecials) continue;
@@ -279,8 +441,8 @@ MetabolicGraph.prototype.setReactions_showmetabs = function(list) {
 		}
 	}
 
-	// Filter isolated nodes and links
-	if (this.options.removeIsolatedMetabolites) {
+	// Filter isolated nodes and links (with only an in or out)
+	if (this.options.removeIsolated) {
 		for (var i=0; i<links.length; i++) {
 			let n = (links[i].target.type == "metabolite") ? links[i].target : links[i].source;
 			if (n.count <= 1) {
@@ -293,16 +455,29 @@ MetabolicGraph.prototype.setReactions_showmetabs = function(list) {
 
 	// TODO? Group metabolites by subsystem if possible
 
-	// TODO? Add invisible links between reactions in same subsystem
-	for (var x in this.model.subsystems) {
-		let s = this.model.subsystems[x].reactions;
-		for (var i=0; i<s.length; i++) {
-			if (!nodes[s[i].id]) continue;
-			for (var j=i+1; j<s.length; j++) {
-				if (!nodes[s[j].id]) continue;
-				links.push({source: nodes[s[i].id], target: nodes[s[j].id], val: 1, subsys: true, input: true});
+	// Add invisible links between reactions in same subsystem
+	if (this.options.subsystemCluster) {
+		let excluded = {
+			"General": true,
+			"Biomass": true,
+			"Others": true,
+			"Exchange reactions": true,
+			"Modeling": true,
+			"Transport": true
+		};
+
+		for (var x in this.model.subsystems) {
+			if (excluded[x]) continue;
+
+			let s = this.model.subsystems[x].reactions;
+			for (var i=0; i<s.length; i++) {
+				if (!nodes[s[i].id]) continue;
+				for (var j=i+1; j<s.length; j++) {
+					if (!nodes[s[j].id]) continue;
+					links.push({source: nodes[s[i].id], target: nodes[s[j].id], val: 1, subsys: true, input: true});
+				}
+				//console.log("ADDING SUBSYS LINKS");
 			}
-			//console.log("ADDING SUBSYS LINKS");
 		}
 	}
 
@@ -338,11 +513,78 @@ function pathStyle(d) {
 	if (d.subsys) return "";
 	if (d.missing) return "";
 	if (d.blocked) return "stroke: blue; stroke-width: 1px";
-	if (d.val < 0) return "stroke-width: " + Math.ceil(Math.abs(d.val)) + "px; stroke: rgba(0,255,0,"+(Math.abs(d.val)/10)+")";
-	return "stroke-width: " + Math.ceil(Math.abs(d.val)) + "px; stroke: rgba(255,0,0,"+(Math.abs(d.val)/10)+")";
+	let val = (d.special) ? 0.08 : (Math.abs(d.val)/15 + 0.33);
+	if (d.val < 0) return "stroke-width: " + Math.ceil(Math.abs(d.val)) + "px; stroke: rgba(0,255,0,"+val+")";
+	return "stroke-width: " + Math.ceil(Math.abs(d.val)) + "px; stroke: rgba(255,0,0,"+val+")";
 }
 
-MetabolicGraph.prototype.graphData = function(data, dist, charge) {
+MetabolicGraph.prototype.displaySubsystems = function(force, svg, colours) {
+	let nodes = force.nodes();
+	let subsyspos = {};
+
+	for (var i=0; i<nodes.length; i++) {
+		let s = nodes[i].origin.subsystem;
+		if (excluded[s]) continue;
+
+		if (!subsyspos[s]) {
+			subsyspos[s] = [nodes[i].x,nodes[i].y,1,0];
+		} else {
+			subsyspos[s][0] += nodes[i].x;
+			subsyspos[s][1] += nodes[i].y;
+			subsyspos[s][2]++;
+		}
+	}
+
+	for (var x in subsyspos) {
+		subsyspos[x][0] /= subsyspos[x][2];
+		subsyspos[x][1] /= subsyspos[x][2];
+	}
+
+	// Now find max distance from centre
+	for (var i=0; i<nodes.length; i++) {
+		let s = nodes[i].origin.subsystem;
+		if (excluded[s]) continue;
+
+		var dx = nodes[i].x - subsyspos[s][0];
+		var dy = nodes[i].y - subsyspos[s][1];
+		var d = Math.sqrt(dx*dx + dy*dy);
+
+		if (d+nodes[i].radius > subsyspos[s][3]) subsyspos[s][3] = d+nodes[i].radius;
+	}
+
+	let paddingLR = 10;
+	let paddingTB = 5;
+
+	for (var x in subsyspos) {
+		let g = svg.insert("g",".node");
+		g.append("circle")
+		.attr("style", "fill: rgba(200,200,200,0.5)")
+		.attr("stroke", "none")
+		.attr("r", Math.floor(subsyspos[x][3])+20)
+		.attr("title", x)
+		.attr("cx", Math.floor(subsyspos[x][0]))
+		.attr("cy", Math.floor(subsyspos[x][1]))
+		.append("title").text(x);
+
+		let r = g.append("rect");
+
+		let t = g.append("text")
+		.attr("y", Math.floor(subsyspos[x][1]) + Math.floor(subsyspos[x][3])+35)
+		.attr("x", Math.floor(subsyspos[x][0]))
+		.attr("text-anchor","middle")
+		.text(x);
+		let bb = null; 
+		t.each(function() { bb = this.getBBox(); }); 
+
+		r.attr("x", subsyspos[x][0] - bb.width/2 - paddingLR)
+		.attr("y", subsyspos[x][1] + Math.floor(subsyspos[x][3])+35 - bb.height/2 - paddingTB)
+		.attr("width", bb.width + paddingLR*2)
+		.attr("height", bb.height + paddingTB*2)
+		.attr("fill", "white");
+	}
+}
+
+MetabolicGraph.prototype.graphData = function(data, dist, charge, cols) {
 	var width = 3000,
     height = 3000;
 
@@ -350,6 +592,7 @@ MetabolicGraph.prototype.graphData = function(data, dist, charge) {
 		.nodes(d3.values(data.nodes))
 		.links(data.links)
 		.size([width, height])
+		//.gravity(0.05)
 		.linkDistance(dist) //60
 		.charge(charge) // -300
 		.linkStrength(link => (link.subsys) ? 2 : 0.1)
@@ -359,6 +602,12 @@ MetabolicGraph.prototype.graphData = function(data, dist, charge) {
 
 	let svg = this.svg;
 
+	let me = this;
+	force.on("end", function() {
+		console.log("END", force);
+		me.displaySubsystems(force,svg,cols);
+	});
+
 	svg.selectAll("*").remove();
 
 	// build the arrow.
@@ -367,7 +616,7 @@ MetabolicGraph.prototype.graphData = function(data, dist, charge) {
 	  .enter().append("svg:marker")    // This section adds in the arrows
 		.attr("id", String)
 		.attr("viewBox", "0 -5 10 10")
-		.attr("refX", 15)
+		.attr("refX", 15) //15
 		.attr("refY", -1.5)
 		.attr("markerWidth", 8)
 		.attr("markerHeight", 8)
@@ -386,7 +635,8 @@ MetabolicGraph.prototype.graphData = function(data, dist, charge) {
 	//    .attr("class", function(d) { return "link " + d.type; })
 		.attr("class", function(d) { return (d.subsys) ? "link invisible" : (((d.special) ? "link special" : "link") + ((d.blocked) ? " blocked" : "") + ((d.val < 0) ? " negative" : "") + ((d.missing) ? " missing" : "")); })
 		.attr("style", pathStyle)
-		.attr("marker-end", function(d) { return (d.input) ? "" : "url(#end)"; });
+		.attr("fill","none");
+		//.attr("marker-mid", function(d) { return (d.input) ? "" : "url(#end)"; });
 
 	// define the nodes
 	var node = svg.selectAll(".node")
@@ -398,7 +648,9 @@ MetabolicGraph.prototype.graphData = function(data, dist, charge) {
 	// add the nodes
 	node.append("circle")
 		.attr("style", d => (d.type == "reaction") ? "fill: "+d.colour : "")
-		.attr("r", function(d) { return (d.type == "metabolite") ? 3 + Math.floor(Math.abs(d.data)*4) : 3 + Math.floor(Math.abs(d.data)*8); })
+		.attr("fill", d => (d.colour) ? d.colour : "#eee")
+		.attr("stroke", d=> (d.extra || d.blocked) ? "none" : "#222")
+		.attr("r", function(d) { return (d.type == "metabolite") ? 3 + Math.floor(Math.abs(d.data)*4) : 4 + Math.floor(Math.abs(d.data)*8); })
 		.attr("title", function(d) { return d.name; })
 		.append("title").text(function(d) { return (d.type == "metabolite" && d.fullname) ? d.fullname : d.name; });
 

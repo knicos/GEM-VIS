@@ -30,6 +30,9 @@ function Dialog(element, cb) {
 	// Don't show metabolites
 	// Color for data, or node size, or both
 
+	this.optelements = [];
+	this.addOptions();
+
 	// Buttons
 	this.buttons();
 	
@@ -286,25 +289,102 @@ Dialog.prototype.updateColumnsCSV = function(csv) {
 	}
 }
 
+Dialog.prototype.addOptions = function() {
+	let outer = document.createElement("div");
+	outer.className = "options-list";
+
+	let opts = {
+		"skipMissing": false,
+		"hideMetabolites": true,
+		"hideMetaboliteNames": true,
+		"hideSpecials": true,
+		"showReactionNames": false,
+		"removeIsolated": true,
+		"subsystemCluster": true,
+		"hideZero": false
+	};
+
+	for (var x in opts) {
+		let o = document.createElement("div");
+		o.className = "question2";
+		let lab = document.createElement("label");
+		lab.setAttribute("for", "opt-"+x);
+		lab.textContent = x;
+		o.appendChild(lab);
+		let opt = document.createElement("input");
+		opt.setAttribute("type", "checkbox");
+		opt.name = x;
+		opt.id = "opt-"+x;
+		opt.checked = opts[x];
+		o.appendChild(opt);
+		outer.appendChild(o);
+		this.optelements.push(opt);
+	}
+
+	//this.optelement = outer;
+	this.element.appendChild(outer);
+}
+
+Dialog.prototype.saveToSVG = function() {
+	let svge = document.querySelector("svg");
+	var me = this;
+	var svgString = new XMLSerializer().serializeToString(svge);
+
+	//var canvas = document.createElement("canvas");
+	//canvas.width = 3000;
+	//canvas.height = 3000;
+	//var ctx = canvas.getContext("2d");
+	var DOMURL = self.URL || self.webkitURL || self;
+	//var img = new Image();
+	var svg = new Blob([svgString], {type: "image/svg+xml;charset=utf-8"});
+	var url = DOMURL.createObjectURL(svg);
+
+	/*img.onload = function() {
+		ctx.drawImage(img, 0, 0);
+		var png = canvas.toDataURL("image/png");
+		//document.querySelector('#png-container').innerHTML = '<img src="'+png+'"/>';
+		let dlink = (me.element.lastChild.nodeName == "A") ? me.element.lastChild : document.createElement("a");
+		dlink.href = png;
+		dlink.download = true;
+		dlink.textContent = "Download";
+		me.element.appendChild(dlink);
+		DOMURL.revokeObjectURL(png);
+	};
+	img.src = url;*/
+
+	let dlink = (me.element.lastChild.nodeName == "A") ? me.element.lastChild : document.createElement("a");
+	dlink.href = url;
+	dlink.download = "visualisation.svg";
+	dlink.textContent = "Download SVG";
+	me.element.appendChild(dlink);
+}
+
 Dialog.prototype.buttons = function() {
 	let me = this;	
 	let go = document.createElement("button");
 	go.textContent = "Go";
 	go.onclick = function(e) {
-		me.cb({
+		let opts = {
 			model: me.model,
 			reactionData: (me.attribute != "metabolite") ? me.data : null,
 			metaboliteData: (me.attribute == "metabolite") ? me.data : null,
-			reactions: me.reaction_list,
-			skipMissing: false,
-			hideMetabolites: false,
-			hideMetaboliteNames: true,
-			hideSpecials: true,
-			showReactionNames: true,
-			removeIsolatedMetabolites: true
-		});
+			reactions: me.reaction_list
+		}
+
+		for (var i=0; i<me.optelements.length; i++) {
+			opts[me.optelements[i].name] = me.optelements[i].checked;
+		}
+
+		me.cb(opts);
 	}
 	this.element.appendChild(go);
+
+	let save = document.createElement("button");
+	save.textContent = "Save";
+	save.onclick = function(e) {
+		me.saveToSVG();
+	}
+	this.element.appendChild(save);
 }
 
 module.exports = Dialog;

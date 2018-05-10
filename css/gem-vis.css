@@ -1,5 +1,6 @@
 path.link {
   fill: none;
+  fill-opacity: 0;
   stroke: red;
   stroke-width: 1.5px;
 }
@@ -9,7 +10,7 @@ path.link.negative {
 }
 
 path.link.special {
-	stroke-dasharray: 2, 2;
+	/*stroke-dasharray: 2, 2;*/
 }
 
 path.link.blocked {
@@ -28,7 +29,7 @@ path.link.invisible {
 
 circle {
   fill: red;
-  stroke: #222;
+  /*stroke: #222;*/
   stroke-width: 1.5px;
 }
 
@@ -80,13 +81,20 @@ div.gem-vis.dialog {
 	display: flex;
 	flex-direction: column;
 	justify-content: space-around;
-	width: 300px;
+	width: 600px;
 	left: 0;
 	top: 0;
-	bottom: 0;
+	background: rgba(0,0,0,0.2);
+	color: white;
 }
 
 div.question {
+	display: flex;
+	justify-content: flex-start;
+	margin-top: 0.5em;
+}
+
+div.question2 {
 	display: flex;
 	justify-content: flex-start;
 }
