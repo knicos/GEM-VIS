@@ -11,6 +11,7 @@ function Dialog(element, cb) {
 	this.label_column_select = null;
 	this.data_column_select = null;
 	this.cb = cb;
+	this.annotationsCSV = null;
 
 	// Google Sheets API
 
@@ -19,9 +20,17 @@ function Dialog(element, cb) {
 	// Choose model
 	this.modelSelector();
 
+	this.element.appendChild(document.createElement("hr"));
+
 	this.dataFile();
 	this.attributeSelector();
 	this.selectColumns();
+
+	this.element.appendChild(document.createElement("hr"));
+
+	this.annotationFile();
+
+	this.element.appendChild(document.createElement("hr"));
 
 	// Choose reactions or reaction sets.
 	this.reactionSelector();
@@ -29,6 +38,8 @@ function Dialog(element, cb) {
 	// TODO Visualisation options
 	// Don't show metabolites
 	// Color for data, or node size, or both
+
+	this.element.appendChild(document.createElement("hr"));
 
 	this.optelements = [];
 	this.addOptions();
@@ -237,6 +248,34 @@ Dialog.prototype.dataFile = function() {
 			me.csv = csv;
 
 			me.updateColumnsCSV(csv);
+		}
+		reader.readAsText(file);
+	}
+}
+
+Dialog.prototype.annotationFile = function() {
+	var me = this;
+
+	let file = document.createElement("input");
+	file.setAttribute("type", "file");
+	this.element.appendChild(formEntry("Annotations",file));
+
+	file.onchange = function(e) {
+		let file = e.target.files[0];
+		//me.filename = file.name;
+		
+		let reader = new FileReader();
+		reader.onload = function(e) {
+			let csv = e.target.result;
+			csv = csv.split("\n");
+			for (var i=0; i<csv.length; i++) {
+				let cols = csv[i].split(",");
+				csv[i] = cols;
+			}
+
+			me.annotationsCSV = csv;
+
+			//me.updateColumnsCSV(csv);
 		}
 		reader.readAsText(file);
 	}
