@@ -322,7 +322,7 @@ MetabolicGraph.prototype.setReactions_hidemetabs = function(list) {
 	let me = this;
 	this.graphData({nodes: nodes, links: links}, function(link) {
 		let count = ((link.target.count > link.source.count) ? link.target.count-1 : link.source.count-1) / (maxcount-1);
-		return (link.subsys) ? ((link.invisible) ? Math.floor(10 + 5*Math.sqrt(subsyscount[link.name])) : 40) : Math.floor(40 + count*20);
+		return (link.subsys) ? ((link.invisible) ? Math.floor(10 + 3*Math.sqrt(subsyscount[link.name])) : 30) : Math.floor(40 + count*20);
 	}, -300, subsys_colours);
 }
 
