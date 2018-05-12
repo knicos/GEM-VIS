@@ -23,7 +23,7 @@ window.onload = function() {
 	});*/
 	let dialog = new GEMVIS.Dialog(document.getElementById("dialog"), function(d) {
 		console.log("DIALOG", d);
-		mg = new GEMVIS.MetabolicGraph(document.getElementById("graph"), d.model, d);
+		mg = new GEMVIS.graph(document.getElementById("graph"), d.model, d);
 		mg.setReactions(d.reactions);
 	});
 }

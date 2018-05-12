@@ -192,6 +192,16 @@ Dialog.prototype.reactionSelector = function() {
 				me.reaction_list.push.apply(me.reaction_list,me.model.reactions.filter(a => a.ec != ""));
 			} else if (values[i] == "SKIP") {
 				// Nothing
+			} else if (values[i] == "allanno") {
+				var rl = [];
+				if (me.annotations) {
+					for (var x in me.annotations) {
+						if (x === undefined || x.trim() == "") continue;
+						rl.push(x);
+					}
+				}
+				console.log(rl);
+				me.reaction_list.push.apply(me.reaction_list,rl);
 			} else if (values[i] != "alldata") {
 				me.reaction_list.push.apply(me.reaction_list,me.model.subsystems[values[i]].reactions);
 			} else {
@@ -436,14 +446,15 @@ Dialog.prototype.addOptions = function() {
 
 	let opts = {
 		"skipMissing": false,
-		"hideMetabolites": true,
-		"hideMetaboliteNames": true,
+		"hideMetaboliteNames": false,
 		"hideSpecials": true,
 		"showReactionNames": false,
-		"removeIsolated": true,
-		"subsystemCluster": true,
+		//"removeIsolated": true,
+		//"subsystemCluster": false,
 		"hideZero": false,
-		"showAnnotationLabels": true
+		"showAnnotationLabels": true,
+		"clearCache": false,
+		"noGravity": true
 	};
 
 	for (var x in opts) {
@@ -454,10 +465,16 @@ Dialog.prototype.addOptions = function() {
 		lab.textContent = x;
 		o.appendChild(lab);
 		let opt = document.createElement("input");
-		opt.setAttribute("type", "checkbox");
+
+		if (typeof opts[x] == "boolean") {
+			opt.setAttribute("type", "checkbox");
+			opt.checked = opts[x];
+		} else {
+			opt.setAttribute("type", "number");
+			opt.value = opts[x];
+		}
 		opt.name = x;
 		opt.id = "opt-"+x;
-		opt.checked = opts[x];
 		o.appendChild(opt);
 		outer.appendChild(o);
 		this.optelements.push(opt);
@@ -511,11 +528,12 @@ Dialog.prototype.buttons = function() {
 			reactionData: (me.attribute != "metabolite") ? me.data : null,
 			metaboliteData: (me.attribute == "metabolite") ? me.data : null,
 			reactions: me.reaction_list,
-			annotations: me.annotations
+			annotations: me.annotations,
+			style: "metabolite"
 		}
 
 		for (var i=0; i<me.optelements.length; i++) {
-			opts[me.optelements[i].name] = me.optelements[i].checked;
+			opts[me.optelements[i].name] = (me.optelements[i].getAttribute("type") == "checkbox") ? me.optelements[i].checked : me.optelements[i].value;
 		}
 
 		me.cb(opts);
