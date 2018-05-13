@@ -257,6 +257,7 @@ module.exports = {
     "id": "PHOSPHO-ENOL-PYRUVATE",
     "types": "Compounds",
     "name": "phosphoenolpyruvate",
+    "abbreviation": "PEP",
     "charge": -3,
     "atoms": {
       "C": 3,
@@ -530,6 +531,13 @@ module.exports = {
       "1-amino-propan-2-one 3-phosphate",
       "3-amino-2-oxopropyl phosphate"
     ]
+  },
+  /** ADDED BY Nick */
+  "PHB": {
+    "id": "PHB",
+    "types": "Compounds",
+    "name": "Poly-beta-hydroxybutyrate",
+    "abbreviation": "PHB"
   },
   "2-AMINO-3-OXO-4-PHOSPHONOOXYBUTYRATE": {
     "id": "2-AMINO-3-OXO-4-PHOSPHONOOXYBUTYRATE",
@@ -5505,6 +5513,7 @@ module.exports = {
     "id": "ACETYL-GLU",
     "types": "N-Alpha-Acetylated-Amino-Acids",
     "name": "N-acetyl-L-glutamate",
+    "abbreviation": "Acetyl-GLU",
     "charge": -2,
     "atoms": {
       "C": 7,
@@ -5595,6 +5604,7 @@ module.exports = {
     "id": "3-P-SERINE",
     "types": "Phosphoserines",
     "name": "3-phospho-L-serine",
+    "abbreviation": "3-P-Serine",
     "charge": -2,
     "atoms": {
       "C": 3,
@@ -6447,6 +6457,7 @@ module.exports = {
     "id": "GLYOX",
     "types": "2-Oxo-carboxylates",
     "name": "glyoxylate",
+    "abbreviation": "GLYOX",
     "charge": -1,
     "atoms": {
       "C": 2,
@@ -6630,6 +6641,7 @@ module.exports = {
     "types": "C4-dicarboxylates",
     "name": "succinate",
     "charge": -2,
+    "abbreviation": "SUC",
     "atoms": {
       "C": 4,
       "H": 4,
@@ -6648,6 +6660,7 @@ module.exports = {
     "id": "FUM",
     "types": "C4-dicarboxylates",
     "name": "fumarate",
+    "abbreviation": "FUM",
     "charge": -2,
     "atoms": {
       "C": 4,
@@ -6664,6 +6677,7 @@ module.exports = {
     "id": "MAL",
     "types": "RS-Malate",
     "name": "(S)-malate",
+    "abbreviation": "MAL",
     "charge": -2,
     "atoms": {
       "C": 4,
@@ -8435,6 +8449,7 @@ module.exports = {
       "&beta;-D-fructose 1,6-diphosphate",
       "D-fructose 1,6-diphosphate",
       "D-fructos 1,6-bisphosphate",
+      "D-Fructose 1,6-bisphosphate",
       "fructose 1,6-bisphosphate",
       "FBP"
     ]
@@ -8576,6 +8591,7 @@ module.exports = {
     "id": "GAP",
     "types": "CPD0-2032",
     "name": "D-glyceraldehyde 3-phosphate",
+	"abbreviation": "GAP",
     "charge": -2,
     "atoms": {
       "C": 3,
@@ -14217,6 +14233,7 @@ module.exports = {
     "id": "2-PG",
     "types": "CPD-16758",
     "name": "2-phospho-D-glycerate",
+	"abbreviation": "2-PG",
     "charge": -3,
     "atoms": {
       "C": 3,
@@ -14238,6 +14255,7 @@ module.exports = {
     "id": "G3P",
     "types": "CPD-16758",
     "name": "3-phospho-D-glycerate",
+	"abbreviation": "G3P",
     "charge": -3,
     "atoms": {
       "C": 3,

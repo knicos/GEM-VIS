@@ -5,15 +5,20 @@ const biocyc = require('./compounds.js');
 const wrap = require('word-wrap');
 
 function processMetabolite(m) {
+	// First add id2
+	m.id2 = m.id.substring(0,m.id.length-2);
+
 	for (var x in biocyc) {
 		let b = biocyc[x];
-		if (b && b.name && m.name.toLowerCase() == b.name.toLowerCase()) {
+		let pname = m.name.toLowerCase().replace(/\-/g," ");
+
+		if (b && b.name && pname == b.name.toLowerCase().replace(/\-/g," ").replace("&beta;","beta").replace("&alpha;","alpha")) {
 			return b;
 		}
 
 		if (b.synonyms) {
 			for (var i=0; i<b.synonyms.length; i++) {
-				if (b.synonyms[i].toLowerCase() == m.name.toLowerCase()) {
+				if (b.synonyms[i].toLowerCase().replace(/\-/g," ").replace("&beta;","beta").replace("&alpha;","alpha") == pname) {
 					//console.log("SYNO MATCH",b);
 					return b;
 				}
@@ -162,19 +167,17 @@ MetabolicGraph.prototype.choosePrimary = function(set) {
 	let rank = {};
 	let maxr = 10000;
 	let maxm = null;
+	let list = [];
 
 	for (var x in set) {
 		let m = this.model.index_metabolites[x];
 		let r = 0;
-		if (specialMetabolites[m.id]) continue;
-		/*else if (!m.biocyc) r = 1000;
-		else if (m.biocyc.inchi) r = m.biocyc.inchi.length;
-		else {
-			r = 900;
-			//console.log("MISSING INCHI",m);
-		}*/
+		//if (specialMetabolites[m.id]) continue;
 
 		r = (m.producers.length+1) * (m.consumers.length+1);
+
+		rank[x] = r;
+		list.push(m);
 
 		if (r < maxr) {
 			maxr = r;
@@ -182,24 +185,99 @@ MetabolicGraph.prototype.choosePrimary = function(set) {
 		}
 	}
 
+	list = list.sort((a,b) => rank[a.id] - rank[b.id]);
+	if (this.options.linkThreshold) {
+		let thresh = this.options.linkThreshold;
+		list = list.filter((a) => rank[a.id] / thresh <= maxr);
+	}
+
 	if (maxm == null) console.error("MISSING PRIMARY");
-	return maxm;
+	return list;
 }
 
 function wrapName(n) {
 	if (n.length <= 20) return n;
-	return wrap(n, {width: 20, cut: true});
+
+	let s = n.split(/(?=[\s\-]+)/);
+	let r = [""];
+	for (var i=0; i<s.length; i++) {
+		if (r[r.length-1].length + s[i].length > 20) r.push("");
+		r[r.length-1] += s[i];
+	}
+	return r.join("\n");
+
+
+	//n = n.replace("alpha-","&alpha;-").replace("beta-","&beta;-").replace("gamma-","&gamma;-");
+	//if (n.length <= 20) return n;
+	//return wrap(n, {width: 20, cut: true});
+}
+
+MetabolicGraph.prototype.scanMetabolites = function(m, visited) {
+	let upcount = 0;
+	let downcount = 0;
+
+	if (visited[m.id]) return 0;
+	visited[m.id] = true;
+
+	// Calculate metabolite colour from data
+	for (var i=0; i<m.producers.length; i++) {
+		if (this.options.reactionData[m.producers[i].id] > 0) upcount++;
+		else if (this.options.reactionData[m.producers[i].id] < 0) downcount++;
+		else {
+			for (var x in m.producers[i].inputs) {
+				let a = this.scanMetabolites(m.producers[i].metabolites[x], visited);
+				if (a > 0) upcount++;
+				else if (a < 0) downcount++;
+			}
+		}
+	}
+
+	if (upcount > 0 && downcount == 0) return 1;
+	else if (downcount > 0 && upcount == 0) return -1;
+	else return 0;
 }
 
 MetabolicGraph.prototype.createMetabolite = function(m, primary) {
+	let colour = "white";
+
+	if (this.options.reactionData) {
+		let upcount = 0;
+		let downcount = 0;
+
+		// Calculate metabolite colour from data
+		for (var i=0; i<m.producers.length; i++) {
+			if (this.options.reactionData[m.producers[i].id] > 0) upcount++;
+			else if (this.options.reactionData[m.producers[i].id] < 0) downcount++;
+		}
+
+		if (upcount > 0 && downcount == 0) colour = "rgb(255,100,100)";
+		else if (downcount > 0 && upcount == 0) colour = "rgb(100,255,100)";
+		else {
+			let a = this.scanMetabolites(m,{});
+			if (a > 0) colour = "rgb(255,180,180)";
+			if (a < 0) colour = "rgb(180,255,180)";
+		}
+	}
+
+	let name = m.name;
+	if (m.biocyc && m.biocyc.abbreviation) {
+		name = m.biocyc.abbreviation.toUpperCase();
+	} else if (m.biocyc && m.biocyc.synonyms) {
+		// Find shortest synonym
+		let s = m.biocyc.synonyms.sort((a,b) => a.length - b.length);
+		name = (s[0].length < name.length) ? s[0] : name;
+	}
+
 	let n = {
 		type: "metabolite",
 		id: m.id,
 		primary: primary,
-		colour: "white",
+		colour: colour,
+		count: 0,
 		value: 1,
 		data: 1,
-		name: wrapName(m.name),
+		fullname: m.name,
+		name: wrapName(name),
 		blocked: false,
 		extra: !primary
 	};
@@ -211,7 +289,7 @@ MetabolicGraph.prototype.createMetabolite = function(m, primary) {
 		n.y = 1500;
 		n.fx = 1500;
 		n.fy = 1500;
-		n.colour = "blue";
+		//n.colour = "blue";
 	} else if (this.cached[m.id]) {
 		let c = this.cached[m.id];
 		n.x = c[0];
@@ -219,7 +297,7 @@ MetabolicGraph.prototype.createMetabolite = function(m, primary) {
 		n.fx = c[0];
 		n.fy = c[1];
 		n.fixed = true;
-		n.colour = "#eee";
+		//n.colour = "#eee";
 	}
 	return n;
 }
@@ -276,29 +354,88 @@ MetabolicGraph.prototype.setReactions = function(list) {
 		let prim_in = this.choosePrimary(reactions[i].inputs);
 		let prim_out = this.choosePrimary(reactions[i].outputs);
 
-		if (prim_in == null || prim_out == null) continue;
+		if (prim_in.length == 0 || prim_out.length == 0) continue;
 
-		if (!nodes[prim_in.id]) nodes[prim_in.id] = this.createMetabolite(prim_in, true);
-		if (!nodes[prim_out.id]) nodes[prim_out.id] = this.createMetabolite(prim_out, true);
+		let lenIn = (this.options.multipleLinks) ? prim_in.length : 1;
+		let lenOut = (this.options.multipleLinks) ? prim_out.length : 1;
+
+		for (var j=0; j<lenIn; j++) {
+		for (var k=0; k<lenOut; k++) {
+
+		if (!nodes[prim_in[j].id]) nodes[prim_in[j].id] = this.createMetabolite(prim_in[j], j == 0);
+		if (!nodes[prim_out[k].id]) nodes[prim_out[k].id] = this.createMetabolite(prim_out[k], k == 0);
 		//links[reactions[i].id] = createReaction(reactions[i], prim_in, prim_out);
 
 		//if (prim_in === prim_out) continue;
 
+		if (this.options.hideLoose && !nodes[prim_in[j].id].fixed && !nodes[prim_out[k].id].fixed) continue;
+
 		if (this.options.annotations && this.options.annotations[reactions[i].id]) {
-			nodes[prim_out.id].annotated = true;
+			nodes[prim_out[k].id].annotated = true;
 		}
+
+		let n1 = nodes[prim_in[j].id];
+		let n2 = nodes[prim_out[k].id];
+
+		// If the nodes are fixed and too far apart, create a ghost node
+		if (n1.fixed && n2.fixed) {
+			var dx = n1.x - n2.x,
+		        dy = n1.y - n2.y,
+		        dr = Math.sqrt(dx * dx + dy * dy);
+			if (dr > 500) {
+				// Create ghost node for source
+				n1 = this.createMetabolite(prim_in[j], j == 0);
+				n1.colour = "#bbb";
+				n1.ghost = true;
+				n1.id += "_ghost_"+n2.id;
+
+				// Does this ghost node have a layout cache?
+				if (this.cached[n1.id]) {
+					n1.fixed = true;
+					n1.fx = this.cached[n1.id][0];
+					n1.fy = this.cached[n1.id][1];
+					n1.x = n1.fx;
+					n1.y = n1.fy;
+				} else {
+					n1.fixed = false;
+					delete n1.fx;
+					delete n2.fy;
+				}
+				nodes[n1.id] = n1;
+			}
+		}
+
+		n1.count++;
+		n2.count++;
 
 		links.push({
 			id: reactions[i].id,
 			origin: reactions[i],
-			source: nodes[prim_in.id],
-			target: nodes[prim_out.id],
+			source: n1,
+			target: n2,
 			input: false,
 			val: scaled + ((scaled < 0) ? -1 : 1),
 			blocked: blocked,
-			missing: missing
+			missing: missing,
+			primary: j == 0 && k == 0
 		});
 
+		if (reactions[i].reversible) {
+			links.push({
+				id: reactions[i].id+"_rev",
+				origin: reactions[i],
+				target: n1,
+				source: n2,
+				input: false,
+				val: scaled + ((scaled < 0) ? -1 : 1),
+				blocked: blocked,
+				missing: missing,
+				primary: j == 0 && k == 0
+			});
+		}
+
+		}
+		}
 		// TODO Deal with non-primary nodes
 
 		// Create links to each metabolite input
@@ -337,16 +474,11 @@ MetabolicGraph.prototype.setReactions = function(list) {
 	}
 
 	// Filter isolated nodes and links (with only an in or out)
-	/*if (this.options.removeIsolated) {
-		for (var i=0; i<links.length; i++) {
-			let n = (links[i].target.type == "metabolite") ? links[i].target : links[i].source;
-			if (n.count <= 1) {
-				links.splice(i,1);
-				i--;
-				delete nodes[n.id];
-			}
+	if (this.options.hideLoose) {
+		for (var x in nodes) {
+			if (nodes[x].count == 0) delete nodes[x];
 		}
-	}*/
+	}
 
 	// TODO? Group metabolites by subsystem if possible
 
@@ -388,20 +520,21 @@ function selectColor(colorNum, colors){
 }
 
 function pathStyle(d) {
+	let alpha = (d.primary) ? 1.0 : 0.5;
 	if (d.invisible) return "stroke: none";
 	//if (d.subsys && !d.sig) return "stroke: rgba(0,0,255,0.4); stroke-width: 1px;";
-	if (d.missing) return "stroke: rgba(100,100,100,0.5); stroke-width: 1px; stroke-dasharray: 2, 2;";
-	if (d.blocked) return "stroke: rgb(0,0,255); stroke-width: 1px";
-	let val = (d.special) ? 0.08 : (Math.abs(d.val)/15 + 0.33);
-	if (d.val < 0) return "stroke-width: " + Math.ceil(Math.abs(d.val)) + "px; stroke: rgb(0,255,0)";
-	return "stroke-width: " + Math.ceil(Math.abs(d.val)) + "px; stroke: rgb(255,0,0)";
+	if (d.missing) return "stroke: rgba(100,100,100,0.8); stroke-width: 1px; stroke-dasharray: 2, 2;";
+	if (d.blocked) return "stroke: rgba(0,0,255,"+alpha+"); stroke-width: 1px";
+	//let val = (d.special) ? 0.08 : (Math.abs(d.val)/15 + 0.33);
+	if (d.val < 0) return "stroke-width: " + Math.ceil(Math.abs(d.val)) + "px; stroke: rgba(0,255,0,"+alpha+")";
+	return "stroke-width: " + Math.ceil(Math.abs(d.val)) + "px; stroke: rgba(255,0,0,"+alpha+")";
 }
 
 function nodeStyle(d) {
 	return (d.type == "reaction") ? "fill: "+d.colour+";" + ((d.annotated) ? " stroke-width: 5px;" : "") : "";
 }
 
-MetabolicGraph.prototype.displaySubsystems = function(force, svg, colours) {
+/*MetabolicGraph.prototype.displaySubsystems = function(force, svg, colours) {
 	let nodes = force.nodes();
 	let subsyspos = {};
 
@@ -471,7 +604,7 @@ MetabolicGraph.prototype.displaySubsystems = function(force, svg, colours) {
 		.attr("height", bb.height + paddingTB)
 		.attr("fill", "white");
 	}
-}
+}*/
 
 MetabolicGraph.prototype.graphData = function(data, dist, charge, cols) {
 	var width = 3000,
@@ -548,11 +681,11 @@ MetabolicGraph.prototype.graphData = function(data, dist, charge, cols) {
 		d.fixed = true;
 		d.fx = d.x;
 		d.fy = d.y;
-		d.colour = "#eee";
-		this.setAttribute("fill", "#eee");
+		//d.colour = "#eee";
+		//this.setAttribute("fill", "#eee");
 	}).on("dragend", function(d) {
 		me.cached[d.id] = [d.x,d.y];
-		window.localStorage.gemvis_cached = JSON.stringify(me.cached);
+		window.localStorage.gemvis_cached = JSON.stringify(me.cached, undefined, 2);
 	});
 
 	// define the nodes
@@ -560,6 +693,11 @@ MetabolicGraph.prototype.graphData = function(data, dist, charge, cols) {
 		.data(force.nodes())
 	  .enter().append("g")
 		.attr("class", function(d) { return ((d.special) ? "node special" : "node") + " " + d.type + ((d.blocked) ? " blocked" : "") + ((d.dead) ? " dead" : "") + ((d.val < 0) ? " negative" : ""); })
+		.on("dblclick", function(d) {
+			d.fixed = false;
+			delete d.fx;
+			delete f.fy;
+		})		
 		.call(drag);
 
 	// add the nodes
@@ -617,12 +755,23 @@ MetabolicGraph.prototype.graphData = function(data, dist, charge, cols) {
 		    var dx = d.target.x - d.source.x,
 		        dy = d.target.y - d.source.y,
 		        dr = Math.sqrt(dx * dx + dy * dy);
-		    return "M" + 
-		        d.source.x + "," + 
-		        d.source.y + "A" + 
-		        dr + "," + dr + " 0 0," + ((d.input) ? "0" : "1") + " " + 
-		        d.target.x + "," + 
-		        d.target.y;
+
+			//if (dr > 500) console.log("DUP", d.source.name , " @ ["+d.target.x+","+d.target.y+"]")
+
+			/*if (d.primary && dr < 300) {
+				return "M" +
+					d.source.x + "," +
+					d.source.y + "L" +
+					d.target.x + "," +
+					d.target.y;
+			} else {*/
+				return "M" + 
+				    d.source.x + "," + 
+				    d.source.y + "A" + 
+				    dr + "," + dr + " 0 0," + ((d.input) ? "0" : "1") + " " + 
+				    d.target.x + "," + 
+				    d.target.y;
+			//}
 		});
 
 		t.each(function() {

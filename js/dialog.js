@@ -454,7 +454,10 @@ Dialog.prototype.addOptions = function() {
 		"hideZero": false,
 		"showAnnotationLabels": true,
 		"clearCache": false,
-		"noGravity": true
+		"noGravity": false,
+		"multipleLinks": true,
+		"linkThreshold": 1.0,
+		"hideLoose": false
 	};
 
 	for (var x in opts) {
