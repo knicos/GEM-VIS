@@ -174,6 +174,7 @@ MetabolicGraph.prototype.choosePrimary = function(set) {
 		let r = 0;
 		//if (specialMetabolites[m.id]) continue;
 
+		// TODO Consider the set number, divide by it?
 		r = (m.producers.length+1) * (m.consumers.length+1);
 
 		rank[x] = r;
@@ -270,7 +271,8 @@ MetabolicGraph.prototype.createMetabolite = function(m, primary) {
 
 	let n = {
 		type: "metabolite",
-		id: m.id,
+		id: m.id2,
+		origin: m,
 		primary: primary,
 		colour: colour,
 		count: 0,
@@ -290,7 +292,15 @@ MetabolicGraph.prototype.createMetabolite = function(m, primary) {
 		n.fx = 1500;
 		n.fy = 1500;
 		//n.colour = "blue";
-	} else if (this.cached[m.id]) {
+	} else if (this.cached[m.id2]) {
+		let c = this.cached[m.id2];
+		n.x = c[0];
+		n.y = c[1];
+		n.fx = c[0];
+		n.fy = c[1];
+		n.fixed = true;
+		//n.colour = "#eee";
+	}/* else if (this.cached[m.id]) {
 		let c = this.cached[m.id];
 		n.x = c[0];
 		n.y = c[1];
@@ -298,7 +308,7 @@ MetabolicGraph.prototype.createMetabolite = function(m, primary) {
 		n.fy = c[1];
 		n.fixed = true;
 		//n.colour = "#eee";
-	}
+	}*/
 	return n;
 }
 
@@ -359,23 +369,27 @@ MetabolicGraph.prototype.setReactions = function(list) {
 		let lenIn = (this.options.multipleLinks) ? prim_in.length : 1;
 		let lenOut = (this.options.multipleLinks) ? prim_out.length : 1;
 
+		// For each secondary, create links to each of the original primaries
+		// Only one of the links is visualised, but it must know the other links target
+
 		for (var j=0; j<lenIn; j++) {
 		for (var k=0; k<lenOut; k++) {
+		let primary = j == 0 && k == 0;
 
-		if (!nodes[prim_in[j].id]) nodes[prim_in[j].id] = this.createMetabolite(prim_in[j], j == 0);
-		if (!nodes[prim_out[k].id]) nodes[prim_out[k].id] = this.createMetabolite(prim_out[k], k == 0);
+		if (!nodes[prim_in[j].id2]) nodes[prim_in[j].id2] = this.createMetabolite(prim_in[j], j == 0);
+		if (!nodes[prim_out[k].id2]) nodes[prim_out[k].id2] = this.createMetabolite(prim_out[k], k == 0);
 		//links[reactions[i].id] = createReaction(reactions[i], prim_in, prim_out);
 
 		//if (prim_in === prim_out) continue;
 
-		if (this.options.hideLoose && !nodes[prim_in[j].id].fixed && !nodes[prim_out[k].id].fixed) continue;
+		if (this.options.hideLoose && !nodes[prim_in[j].id2].fixed && !nodes[prim_out[k].id2].fixed) continue;
 
 		if (this.options.annotations && this.options.annotations[reactions[i].id]) {
-			nodes[prim_out[k].id].annotated = true;
+			nodes[prim_out[k].id2].annotated = true;
 		}
 
-		let n1 = nodes[prim_in[j].id];
-		let n2 = nodes[prim_out[k].id];
+		let n1 = nodes[prim_in[j].id2];
+		let n2 = nodes[prim_out[k].id2];
 
 		// If the nodes are fixed and too far apart, create a ghost node
 		if (n1.fixed && n2.fixed) {
@@ -387,7 +401,7 @@ MetabolicGraph.prototype.setReactions = function(list) {
 				n1 = this.createMetabolite(prim_in[j], j == 0);
 				n1.colour = "#bbb";
 				n1.ghost = true;
-				n1.id += "_ghost_"+n2.id;
+				n1.id += "_ghost_"+reactions[i].id+"_"+n2.id;
 
 				// Does this ghost node have a layout cache?
 				if (this.cached[n1.id]) {
@@ -401,6 +415,7 @@ MetabolicGraph.prototype.setReactions = function(list) {
 					delete n1.fx;
 					delete n2.fy;
 				}
+				if (nodes[n1.id]) console.error("EXISTING GHOST", nodes[n1.id]);
 				nodes[n1.id] = n1;
 			}
 		}
@@ -716,6 +731,7 @@ MetabolicGraph.prototype.graphData = function(data, dist, charge, cols) {
 		let t = node.append("text")
 		//.attr("y", Math.floor(subsyspos[x][1]) + Math.floor(subsyspos[x][3])+35)
 		//.attr("x", Math.floor(subsyspos[x][0]))
+		.attr("font-size", d => (d.ghost) ? 6 : 8)
 		.attr("text-anchor","middle");
 		//.text(d => d.name);
 
@@ -734,7 +750,7 @@ MetabolicGraph.prototype.graphData = function(data, dist, charge, cols) {
 		//.attr("y", - bb.height/2 - paddingTB)
 		r.attr("rx", 5)
 		.attr("ry", 5)
-		.attr("stroke", d => (d.annotated) ? "orange" : "#222")
+		.attr("stroke", d => (d.annotated) ? "orange" : (d.ghost) ? "none" : "#222")
 		.attr("stroke-width", d => (d.annotated) ? 3 : 2)
 		//.attr("width", bb.width + paddingLR*2)
 		//.attr("height", bb.height + paddingTB)
