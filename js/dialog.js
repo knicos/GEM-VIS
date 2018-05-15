@@ -457,7 +457,9 @@ Dialog.prototype.addOptions = function() {
 		"noGravity": false,
 		"multipleLinks": true,
 		"linkThreshold": 1.0,
-		"hideLoose": false
+		"hideLoose": false,
+		"tertiary": false,
+		"colourRule": ["None", "Subsystem", "Data Boolean", "Data Extrapolated", "Significance Boolean", "Significance Gradient"]
 	};
 
 	for (var x in opts) {
@@ -467,12 +469,22 @@ Dialog.prototype.addOptions = function() {
 		lab.setAttribute("for", "opt-"+x);
 		lab.textContent = x;
 		o.appendChild(lab);
-		let opt = document.createElement("input");
+		let opt = null;
 
-		if (typeof opts[x] == "boolean") {
+		if (Array.isArray(opts[x])) {
+			opt = document.createElement("select");
+			for (var i=0; i<opts[x].length; i++) {
+				let opt2 = document.createElement("option");
+				opt2.value = opts[x][i];
+				opt2.textContent = opts[x][i];
+				opt.appendChild(opt2);
+			}
+		} else if (typeof opts[x] == "boolean") {
+			opt = document.createElement("input");
 			opt.setAttribute("type", "checkbox");
 			opt.checked = opts[x];
 		} else {
+			opt = document.createElement("input");
 			opt.setAttribute("type", "number");
 			opt.value = opts[x];
 		}
@@ -536,7 +548,10 @@ Dialog.prototype.buttons = function() {
 		}
 
 		for (var i=0; i<me.optelements.length; i++) {
-			opts[me.optelements[i].name] = (me.optelements[i].getAttribute("type") == "checkbox") ? me.optelements[i].checked : me.optelements[i].value;
+			opts[me.optelements[i].name] =
+				(me.optelements[i].getAttribute("type") == "checkbox")
+				? me.optelements[i].checked
+				: me.optelements[i].value;
 		}
 
 		me.cb(opts);
