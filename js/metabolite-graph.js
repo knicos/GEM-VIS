@@ -34,6 +34,7 @@ function MetabolicGraph(parent, model, options) {
 	this.options = (options) ? options : {};
 	this.force = null;
 
+	this.tert_nodes = [];
 	this.metaProducers = {};
 	this.metaConsumers = {};
 	this.metaRank = {};
@@ -495,7 +496,7 @@ MetabolicGraph.prototype.makePrimary = function(reaction, m1, m2, nodes, links, 
 
 let secindex = 0;
 
-MetabolicGraph.prototype.makeSecondary = function(reaction, p1, p2, m, nodes, links, master, input) {
+MetabolicGraph.prototype.makeSecondary = function(reaction, n_tert, m, nodes, links, master, input) {
 	//let id = m.id2 + "_SEC_" + reaction.id + "_" + p1.id2;
 
 	if (!nodes[m.id2]) nodes[m.id2] = this.createMetabolite(m, false);
@@ -504,13 +505,13 @@ MetabolicGraph.prototype.makeSecondary = function(reaction, p1, p2, m, nodes, li
 	//n.id = n.id + "_"+reaction.id+"_"+p1.id2;
 	//let n2 = nodes[m2.id2];
 
-	let np1 = nodes[p1.id2];
-	let np2 = nodes[p2.id2];
+	//let np1 = nodes[p1.id2];
+	//let np2 = nodes[p2.id2];
 
-	if (!np1 || !np2) {
-		console.error("MISSING PRIMARY");
-		return;
-	}
+	//if (!np1 || !np2) {
+	//	console.error("MISSING PRIMARY");
+	//	return;
+	//}
 
 	//links[reactions[i].id] = createReaction(reactions[i], prim_in, prim_out);
 
@@ -523,19 +524,19 @@ MetabolicGraph.prototype.makeSecondary = function(reaction, p1, p2, m, nodes, li
 	//}
 
 	// If the nodes are fixed and too far apart, create a ghost node
-	if (np1.fixed && np2.fixed) {
-		var dx = np1.x - n.x,
-	        dy = np1.y - n.y,
+	if (n_tert.source.fixed && n_tert.target.fixed) {
+		var dx = n_tert.target.x - n.x,
+	        dy = n_tert.target.y - n.y,
 	        dr1 = Math.sqrt(dx * dx + dy * dy);
-			dx = np2.x - n.x;
-	        dy = np2.y - n.y;
+			dx = n_tert.source.x - n.x;
+	        dy = n_tert.source.y - n.y;
 	        dr2 = Math.sqrt(dx * dx + dy * dy);
 		if (dr1 > 500 || dr2 > 500) {
 			// Create ghost node for source
 			n = this.createMetabolite(n.origin, true);
 			n.colour = "#bbb";
 			n.ghost = true;
-			n.id += "_ghost_"+reaction.id+"_"+np1.id;
+			n.id += "_ghost_"+n_tert.id;
 
 			// Does this ghost node have a layout cache?
 			if (this.cached[n.id]) {
@@ -555,14 +556,14 @@ MetabolicGraph.prototype.makeSecondary = function(reaction, p1, p2, m, nodes, li
 	}
 
 	n.count++;
-	np1.count++;
-	np2.count++;
+	n_tert.count++;
+	//np2.count++;
 
 	links.push({
 		id: "SEC_"+secindex,
 		origin: reaction,
 		source: n,
-		target: np1,
+		target: n_tert,
 		master: master,
 		input: !input,
 		val: master.val, // + ((scaled < 0) ? -1 : 1),
@@ -572,25 +573,10 @@ MetabolicGraph.prototype.makeSecondary = function(reaction, p1, p2, m, nodes, li
 		secondary: true
 	});
 	secindex++;
-
-	links.push({
-		id: "SEC_"+secindex,
-		origin: reaction,
-		target: n,
-		source: np2,
-		master: master,
-		input: false,
-		val: master.val, // + ((scaled < 0) ? -1 : 1),
-		blocked: master.blocked,
-		missing: master.missing,
-		primary: false,
-		secondary: false
-	});
-	secindex++;
 }
 
-MetabolicGraph.prototype.makeTertiary = function(reaction, p1, p2, m, nodes, links, master, input, tert) {
-	let id = "TERT_" + secindex++;
+MetabolicGraph.prototype.makeTertiary = function(reaction, p, m, nodes, links, master, input, tert) {
+	let id = "TERT_" + master.id + "_" + ((input) ? "IN" : "OUT");
 
 	if (!nodes[id]) nodes[id] = this.createMergedMetabolite(m, false, id);
 	let n = nodes[id];
@@ -599,45 +585,34 @@ MetabolicGraph.prototype.makeTertiary = function(reaction, p1, p2, m, nodes, lin
 	n.ghost = true;
 	n.colour = "white";
 
-	let np1 = nodes[p1.id2];
-	let np2 = nodes[p2.id2];
-
-	if (!np1 || !np2) {
-		console.error("MISSING PRIMARY");
-		return;
-	}
-
 	// Hack to get into good initial position;
 	if (!n.fixed) {
-		if (np1.fixed) {
-			n.x = np1.x;
-			n.y = np1.y;
-		} else if (np2.fixed) {
-			n.x = np2.x;
-			n.y = np2.y;
-		}
+		n.x = p.x;
+		n.y = p.y;
+		n.px = p.x;
+		n.py = p.y;
 	}
 
 	n.count++;
-	np1.count++;
-	np2.count++;
+	p.count++;
 
 	links.push({
 		id: "SEC_"+secindex,
 		origin: reaction,
 		source: n,
-		target: np1,
+		target: p,
 		master: master,
 		input: !input,
 		val: master.val, // + ((scaled < 0) ? -1 : 1),
 		blocked: master.blocked,
 		missing: master.missing,
 		primary: false,
-		secondary: true
+		secondary: true,
+		tertiary: true
 	});
 	secindex++;
 
-	links.push({
+	/*links.push({
 		id: "SEC_"+secindex,
 		origin: reaction,
 		target: n,
@@ -650,7 +625,8 @@ MetabolicGraph.prototype.makeTertiary = function(reaction, p1, p2, m, nodes, lin
 		primary: false,
 		secondary: false
 	});
-	secindex++;
+	secindex++;*/
+	return n;
 }
 
 MetabolicGraph.prototype.setReactions = function(list) {
@@ -708,7 +684,7 @@ MetabolicGraph.prototype.setReactions = function(list) {
 		}
 	}
 
-	var datascale = 15.0 / maxdata;
+	var datascale = 20.0 / maxdata;
 	let maxcount = 0;
 
 	let nodes = {};
@@ -750,16 +726,84 @@ MetabolicGraph.prototype.setReactions = function(list) {
 		let master = this.makePrimary(reactions[i], prim_in[0], prim_out[0], nodes, links, blocked, missing, scaled, data);
 		if (!master) continue;
 
+		// Step 1: create virtual tertiary node
+		let n_tert = {
+			type: "tertiary",
+			id: "TERT_"+reactions[i].id,
+			origin: reactions[i],
+			invisible: true,
+			name: reactions[i].name,
+			fullname: reactions[i].name,
+			fixed: true,
+			target: master.target,
+			source: master.source,
+			count: 1
+		};
+		nodes[n_tert.id] = n_tert;
+		this.tert_nodes.push(n_tert);
+
+		// Step 2: Position node in approximate location
+		let n1 = master.target;
+		let n2 = master.source;
+		if (n1.fixed && n2.fixed) {
+			n_tert.x = n1.x + (n2.x-n1.x)/2;
+			n_tert.y = n1.y + (n2.y-n1.y)/2;
+			n_tert.fx = n_tert.x;
+			n_tert.fy = n_tert.y;
+		} else {
+			n_tert.x = 1500;
+			n_tert.y = 1500;
+		}
+
 		for (var j=1; j<lenIn; j++) {
-			this.makeSecondary(reactions[i], prim_in[0], prim_out[0], prim_in[j], nodes, links, master, true);
+			this.makeSecondary(reactions[i], n_tert, prim_in[j], nodes, links, master, true);
 		}
 		for (var j=1; j<lenOut; j++) {
-			this.makeSecondary(reactions[i], prim_out[0], prim_in[0], prim_out[j], nodes, links, master, false);
+			this.makeSecondary(reactions[i], n_tert, prim_out[j], nodes, links, master, false);
 		}
 
 		if (this.options.tertiary) {
-			if (tertLenIn > 0) this.makeTertiary(reactions[i], prim_in[0], prim_out[0], tert_in, nodes, links, master, true);
-			if (tertLenIn > 0) this.makeTertiary(reactions[i], prim_out[0], prim_in[0], tert_out, nodes, links, master, false);
+			// Step 3: Create in and out tertiary nodes + links to virtual tert node
+			let t1, t2;
+			if (tertLenIn > 0) t1 = this.makeTertiary(reactions[i], n_tert, tert_in, nodes, links, master, true);
+			if (tertLenOut > 0) t2 = this.makeTertiary(reactions[i], n_tert, tert_out, nodes, links, master, false);
+
+			// Step 4: Link tertiary nodes primaries.
+			if (t1) {
+				links.push({
+					id: "SEC_"+secindex++,
+					origin: reactions[i],
+					target: n2,
+					source: t1,
+					master: master,
+					input: false,
+					val: 0, // + ((scaled < 0) ? -1 : 1),
+					blocked: true,
+					missing: false,
+					primary: false,
+					secondary: true,
+					tertiary: true,
+					invisible: true
+				});
+			}
+
+			if (t2) {
+				links.push({
+					id: "SEC_"+secindex++,
+					origin: reactions[i],
+					target: n1,
+					source: t2,
+					master: master,
+					input: false,
+					val: 0, // + ((scaled < 0) ? -1 : 1),
+					blocked: true,
+					missing: false,
+					primary: false,
+					secondary: true,
+					tertiary: true,
+					invisible: true
+				});
+			}
 		}
 
 
@@ -916,7 +960,7 @@ MetabolicGraph.prototype.setReactions = function(list) {
 	console.log("DATA",nodes,links);
 
 	// Update the d3 graph
-	this.graphData({nodes: nodes, links: links}, link => (link.secondary) ? 20 : 40, -100);
+	this.graphData({nodes: nodes, links: links}, link => (link.tertiary) ? ((link.invisible) ? 20 : 15) : (link.secondary) ? 10 : 40, -100);
 }
 
 function selectColor(colorNum, colors){
@@ -929,14 +973,17 @@ function selectColor(colorNum, colors){
 function pathStyle(d) {
 	let alpha = (d.primary) ? 1.0 : 0.5;
 	if (d.invisible) return "stroke: none";
-	//if (d.subsys && !d.sig) return "stroke: rgba(0,0,255,0.4); stroke-width: 1px;";
-	if (d.missing) return "stroke: rgba(100,100,100,0.8); stroke-width: 1px; stroke-dasharray: 2, 2;";
-	if (d.blocked) return "stroke: rgba(0,0,255,"+alpha+"); stroke-width: 1px";
 
-	if (d.secondary) {
+	if (d.secondary || d.tertiary) {
+		if (d.missing) return "stroke: rgba(100,100,100,0.8); stroke-width: 1px;"; // stroke-dasharray: 2, 2;";
+		if (d.blocked) return "stroke: rgba(0,0,255,"+alpha+"); stroke-width: 1px";
 		if (d.val < 0) return "stroke-width: 1px; stroke: rgba(0,255,0,"+alpha+")";
 		return "stroke-width: 1px; stroke: rgba(255,0,0,"+alpha+")";
 	}
+
+	//if (d.subsys && !d.sig) return "stroke: rgba(0,0,255,0.4); stroke-width: 1px;";
+	if (d.missing) return "stroke: rgba(100,100,100,0.8); stroke-width: 1px;"; // stroke-dasharray: 2, 2;";
+	if (d.blocked) return "stroke: rgba(0,0,255,"+alpha+"); stroke-width: 2px";
 
 	//let val = (d.special) ? 0.08 : (Math.abs(d.val)/15 + 0.33);
 	if (d.val < 0) return "stroke-width: " + Math.ceil(Math.abs(d.val)) + "px; stroke: rgba(0,255,0,"+alpha+")";
@@ -1047,6 +1094,17 @@ function angleDiff(a,b) {
 // c -> 10
 // c = 350
 
+MetabolicGraph.prototype.unfixNode = function(node) {
+	d.fixed = false;
+	delete d.fx;
+	delete d.fy;
+	delete me.cached[d.id];
+
+	// TODO Now unfix all tertiary nodes.
+
+	window.localStorage.gemvis_cached = JSON.stringify(me.cached, undefined, 2);
+}
+
 MetabolicGraph.prototype.graphData = function(data, dist, charge, cols) {
 	var width = 3000,
     height = 3000;
@@ -1060,8 +1118,8 @@ MetabolicGraph.prototype.graphData = function(data, dist, charge, cols) {
 		.size([width, height])
 		.gravity((this.options.noGravity) ? 0 : 0.01)
 		.linkDistance(dist) //60
-		.charge(charge) // -300
-		.linkStrength(link => (link.missing) ? 0.3 : (link.blocked) ? 0.5 : (link.secondary) ? 2 : 1)
+		.charge(n => (n.tertiary) ? charge : charge) // -300
+		.linkStrength(link => (link.tertiary) ? ((link.invisible) ? 1 : 2) : (link.secondary) ? 1 : (link.missing) ? 0.3 : (link.blocked) ? 0.5 : 1)
 		.on("tick", tick)
 		.start();
 	this.force = force;
@@ -1141,11 +1199,7 @@ MetabolicGraph.prototype.graphData = function(data, dist, charge, cols) {
 	  .enter().append("g")
 		.attr("class", function(d) { return ((d.special) ? "node special" : "node") + " " + d.type + ((d.blocked) ? " blocked" : "") + ((d.dead) ? " dead" : "") + ((d.val < 0) ? " negative" : ""); })
 		.on("dblclick", function(d) {
-			d.fixed = false;
-			delete d.fx;
-			delete d.fy;
-			delete me.cached[d.id];
-			window.localStorage.gemvis_cached = JSON.stringify(me.cached, undefined, 2);
+			me.unfixNode(d);
 		})		
 		.call(drag);
 
@@ -1171,7 +1225,7 @@ MetabolicGraph.prototype.graphData = function(data, dist, charge, cols) {
 		//.text(d => d.name);
 
 		t.selectAll("tspan")
-		.data(function(d) { return d.name.split("\n"); })
+		.data(function(d) { return (d.type == "metabolite") ? d.name.split("\n") : ""; })
 		.enter()
 		.append("tspan")
 		.attr("x",0)
@@ -1206,48 +1260,62 @@ MetabolicGraph.prototype.graphData = function(data, dist, charge, cols) {
 
 	// add the curvy lines
 	function tick() {
+		// TODO Update virtual tertiary node.
+		for (var i=0; i<me.tert_nodes.length; i++) {
+			let d = me.tert_nodes[i];
+			let x1 = d.target.x,
+				x2 = d.source.x,
+				y1 = d.target.y,
+				y2 = d.source.y;
+			let dx = d.target.x - d.source.x,
+			    dy = d.target.y - d.source.y,
+				dr = Math.sqrt(dx * dx + dy * dy);
+
+			let x3 = (x1+x2) / 2;
+			let y3 = (y1+y2) / 2;
+
+			let cx = (false) ? x3 + Math.sqrt(dr*dr-Math.pow(dr/2,2))*(y1-y2)/dr : x3 - Math.sqrt(dr*dr-Math.pow(dr/2,2))*(y1-y2)/dr;
+			let cy = (false) ? y3 + Math.sqrt(dr*dr-Math.pow(dr/2,2))*(x2-x1)/dr : y3 - Math.sqrt(dr*dr-Math.pow(dr/2,2))*(x2-x1)/dr;
+
+			let a1 = angle(cx,cy,x1,y1);
+			let a2 = angle(cx,cy,x2,y2);
+			let a = (angleDiff(a2, a1) / 2) + a1;
+
+			let [sx,sy] = getPointAt(cx,cy,dr,a);
+
+			d.x = sx;
+			d.y = sy;
+			d.fx = sx;
+			d.fy = sy;
+			d.centre_x = cx;
+			d.centre_y = cy;
+			d.radius = dr;
+		}
+
 		path.attr("d", function(d) {
 			if (d.secondary) {
-				let x1 = d.master.target.x,
-					x2 = d.master.source.x,
-					y1 = d.master.target.y,
-					y2 = d.master.source.y;
-				let dx = d.master.target.x - d.master.source.x,
-				    dy = d.master.target.y - d.master.source.y,
-					dr = Math.sqrt(dx * dx + dy * dy);
-
-				let x3 = (x1+x2) / 2;
-				let y3 = (y1+y2) / 2;
-
-				let cx = (d.master.input) ? x3 + Math.sqrt(dr*dr-Math.pow(dr/2,2))*(y1-y2)/dr : x3 - Math.sqrt(dr*dr-Math.pow(dr/2,2))*(y1-y2)/dr;
-				let cy = (d.master.input) ? y3 + Math.sqrt(dr*dr-Math.pow(dr/2,2))*(x2-x1)/dr : y3 - Math.sqrt(dr*dr-Math.pow(dr/2,2))*(x2-x1)/dr;
-
-				let a1 = angle(cx,cy,x1,y1);
-				let a2 = angle(cx,cy,x2,y2);
-				let a = (angleDiff(a2, a1) / 2) + a1;
-
-				let [sx,sy] = getPointAt(cx,cy,dr,a);
-
-				let dx2 = sx - d.source.x,
-					dy2 = sy - d.source.y,
+				let dx2 = d.target.x - d.source.x,
+					dy2 = d.target.y - d.source.y,
 					dr2 = Math.sqrt(dx2 * dx2 + dy2 * dy2)*0.8;
 
-				let dcx = d.source.x - cx,
-					dcy = d.source.y - cy,
+				let dcx = d.source.x - d.target.centre_x,
+					dcy = d.source.y - d.target.centre_y,
 					dcr = Math.sqrt(dcx*dcx+dcy*dcy);
-				let inside = dcr <= dr;
+				let inside = dcr <= d.target.radius;
+
+				if (isNaN(dr2)) return "";
 
 				if (!d.input) {
 					return "M" + 
 						d.source.x + "," + 
 						d.source.y + "A" + 
 						dr2 + "," + dr2 + " 0 0," + ((!inside) ? "0" : "1") + " " + 
-						sx + "," + 
-						sy;
+						d.target.x + "," + 
+						d.target.y;
 				} else {
 					return "M" + 
-						sx + "," + 
-						sy + "A" + 
+						d.target.x + "," + 
+						d.target.y + "A" + 
 						dr2 + "," + dr2 + " 0 0," + ((inside) ? "1" : "0") + " " + 
 						d.source.x + "," + 
 						d.source.y;
@@ -1267,6 +1335,7 @@ MetabolicGraph.prototype.graphData = function(data, dist, charge, cols) {
 		});
 
 		t.each(function(d) {
+			if (d.invisible) return;
 			let pLR = (d.ghost) ? paddingLR*0.5 : (d.tertiary) ? 0 : paddingLR;
 			let pTB = (d.ghost) ? paddingTB*0.5 : (d.tertiary) ? 0 : paddingTB;
 
@@ -1283,7 +1352,7 @@ MetabolicGraph.prototype.graphData = function(data, dist, charge, cols) {
 
 		node
 		    .attr("transform", function(d) { 
-	  	    return "translate(" + d.x + "," + d.y + ")"; });
+	  	    return (isNaN(d.x)) ? "" : "translate(" + d.x + "," + d.y + ")"; });
 	}
 }
 
