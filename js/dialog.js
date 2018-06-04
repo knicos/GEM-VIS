@@ -85,8 +85,8 @@ Dialog.prototype.generateDataFromCSV = function() {
 }
 
 let models = {
-	iSynCJ816: "https://knicos.github.io/SBML/samples/iSynCJ816-mmc12.xml",
-	"iSynCJ816 (corrected)": "https://knicos.github.io/SBML/samples/iSynCJ816.xml"
+	iSynCJ816: "https://knicos.github.io/GEM/samples/iSynCJ816-mmc12.xml",
+	"iSynCJ816 (corrected)": "https://knicos.github.io/GEM/samples/iSynCJ816.xml"
 };
 
 function formEntry(label, element) {
@@ -459,6 +459,8 @@ Dialog.prototype.addOptions = function() {
 		"linkThreshold": 1.0,
 		"hideLoose": false,
 		"tertiary": false,
+		"breakLong": true,
+		"showGhostLinks": false,
 		"colourRule": ["None", "Subsystem", "Data Boolean", "Data Extrapolated", "Significance Boolean", "Significance Gradient"]
 	};
 

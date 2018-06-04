@@ -4,9 +4,25 @@
 const biocyc = require('./compounds.js');
 const wrap = require('word-wrap');
 
-function processMetabolite(m) {
+function processMetabolite(m, counts) {
 	// First add id2
 	m.id2 = m.id.substring(0,m.id.length-2);
+
+	// Choose primary subsystems
+	let slist = [];
+	for (var x in m.producer_subsystems) {
+		slist.push(x);
+	}
+	slist = slist.sort((a,b) => m.producer_subsystems[b] - m.producer_subsystems[a]);
+	m.primary_production_subsystem = slist[0];
+	slist = [];
+	for (var x in m.consumer_subsystems) {
+		slist.push(x);
+	}
+	slist = slist.sort((a,b) => m.consumer_subsystems[b] - m.consumer_subsystems[a]);
+	counts.push([m,slist.length]);
+
+	m.primary_consumption_subsystem = slist[0];
 
 	for (var x in biocyc) {
 		let b = biocyc[x];
@@ -33,18 +49,22 @@ function MetabolicGraph(parent, model, options) {
 	this.model = model;
 	this.options = (options) ? options : {};
 	this.force = null;
+	this.node = null;
 
 	this.tert_nodes = [];
 	this.metaProducers = {};
 	this.metaConsumers = {};
 	this.metaRank = {};
 	this.metaRatio = {};
+	this.metaBreak = {};
+
+	let syscounts = [];
 
 	// TODO Process metabolites with BioCyc Data
 	for (var i=0; i<model.metabolites.length; i++) {
 		let m = model.metabolites[i];
 
-		m.biocyc = processMetabolite(m);
+		m.biocyc = processMetabolite(m,syscounts);
 		if (!this.metaProducers[m.id2]) this.metaProducers[m.id2] = 0;
 		if (!this.metaConsumers[m.id2]) this.metaConsumers[m.id2] = 0;
 		this.metaProducers[m.id2] += m.producers.length;
@@ -52,6 +72,12 @@ function MetabolicGraph(parent, model, options) {
 		
 		//if (!this.metaRank[m.id2]) this.metaRank[m.id2] = 0;
 		//this.metaRank[m.id2] += (m.producers.length+1) * (m.consumers.length+1);
+	}
+
+	syscounts = syscounts.sort((a,b) => b[1] - a[1]);
+	for (var i=0; i<syscounts.length; i++) {
+		if (syscounts[i][1] <= 3) break;
+		this.metaBreak[syscounts[i][0].id2] = true;
 	}
 
 	// Calculate metabolite metrics
@@ -69,6 +95,15 @@ function MetabolicGraph(parent, model, options) {
 
 	this.element = document.createElement("div");
 	this.element.className = "synechocystis-graph";
+	this.element.setAttribute("tabindex","1");
+
+	this.element.addEventListener("keydown", function(e) {
+		console.log("KEY DOWN", e);
+		if (e.code == "KeyF" && e.ctrlKey) {
+			console.log("FIND");
+			e.preventDefault();
+		}
+	});
 
 	var width = 3000,
     height = 3000;
@@ -87,7 +122,7 @@ function MetabolicGraph(parent, model, options) {
 	button.onclick = function() {
 		saveSvgAsPng(me.svg, "model.png");
 	}
-	this.element.appendChild(button);
+	//this.element.appendChild(button);
 
 	if (!this.options.clearCache && window.localStorage && window.localStorage.gemvis_cached) {
 		this.cached = JSON.parse(window.localStorage.gemvis_cached);
@@ -166,6 +201,19 @@ function rotate(cx, cy, x, y, angle) {
     return [nx, ny];
 }
 
+MetabolicGraph.prototype.find = function(q) {
+	if (!q || q == "") {
+		this.node.attr("fill", (d)=>d.colour);
+	} else {
+		let regex = new RegExp(""+q+".*","i");
+		this.node.attr("fill", (d)=> {
+			if (d.type == "metabolite" && !d.ghost && regex.test(d.fullname)) {
+				return "blue";
+			} else return d.colour;
+		});
+	}
+}
+
 MetabolicGraph.prototype.filterReactions = function(list,data) {
 	let reactions = [];
 
@@ -188,7 +236,7 @@ MetabolicGraph.prototype.filterReactions = function(list,data) {
 	return reactions;
 }
 
-MetabolicGraph.prototype.choosePrimary = function(set) {
+MetabolicGraph.prototype.choosePrimary = function(set, reaction, consumer) {
 	let rank = {};
 	let maxr = 10000;
 	let maxm = null;
@@ -197,11 +245,7 @@ MetabolicGraph.prototype.choosePrimary = function(set) {
 	for (var x in set) {
 		let m = this.model.index_metabolites[x];
 		let r = 0;
-		//if (specialMetabolites[m.id]) continue;
 
-		// TODO Consider the set number, divide by it?
-		// TODO Must consider compartment independent numbers.
-		//r = ((m.producers.length+1) * (m.consumers.length+1)); // * set[x]; // / set[x];
 		r = this.metaRank[m.id2];
 
 		rank[x] = r;
@@ -214,12 +258,31 @@ MetabolicGraph.prototype.choosePrimary = function(set) {
 	}
 
 	list = list.sort((a,b) => rank[a.id] - rank[b.id]);
+
+	// TODO Replace threshold with subsystem check
+	let listA = [list[0]];
+	let i = 1;
+	while (i < list.length && rank[list[i].id] / this.options.linkThreshold <= maxr) {
+		listA.push(list[i++]);
+	}
+
+	let listB = [];
+	for (; i<list.length; i++) {
+		// Check in same subsystem as reaction
+		// TODO split production and consumption subsystems
+		if ((consumer && list[i].primary_production_subsystem == reaction.subsystem) 
+				|| (!consumer && list[i].primary_consumption_subsystem == reaction.subsystem)) listA.push(list[i]);
+		else listB.push(list[i]);
+	}
+	return [listA,listB];
+
+	/*
 	if (this.options.linkThreshold) {
 		let thresh = this.options.linkThreshold;
 		let listA = list.filter((a) => rank[a.id] / thresh <= maxr);
 		let listB = list.filter((a) => rank[a.id] / thresh > maxr);
 		return [listA,listB];
-	}
+	}*/
 
 	if (maxm == null) console.error("MISSING PRIMARY");
 	return [list,[]];
@@ -303,11 +366,11 @@ MetabolicGraph.prototype.createMetabolite = function(m, primary, pid) {
 	let id = (pid) ? pid : m.id2;
 
 	let slist = [];
-	for (var x in m.subsystems) {
+	for (var x in m.producer_subsystems) {
 		slist.push(x);
 	}
-	// TODO Check sort order.
-	slist = slist.sort((a,b) => m.subsystems[b] - m.subsystems[a]);
+
+	slist = slist.sort((a,b) => m.producer_subsystems[b] - m.producer_subsystems[a]);
 
 	switch (this.options.colourRule) {
 	case "Subsystem"			: if (slist.length > 0) colour = this.subsys_colours[slist[0]]; break;
@@ -342,7 +405,7 @@ MetabolicGraph.prototype.createMetabolite = function(m, primary, pid) {
 		subsystem: (slist.length > 0) ? slist[0] : "None"
 	};
 
-	/*if (m.name == "Pyruvate") {
+	if (m.name == "Pyruvate") {
 		console.log("FOUND PYRUVATE", n);
 		n.fixed = true;
 		n.x = 1500;
@@ -350,7 +413,7 @@ MetabolicGraph.prototype.createMetabolite = function(m, primary, pid) {
 		n.fx = 1500;
 		n.fy = 1500;
 		//n.colour = "blue";
-	} else */
+	}
 
 	if (this.cached[id]) {
 		let c = this.cached[id];
@@ -360,7 +423,13 @@ MetabolicGraph.prototype.createMetabolite = function(m, primary, pid) {
 		n.fy = c[1];
 		n.fixed = true;
 		//n.colour = "#eee";
-	}/* else if (this.cached[m.id]) {
+	} else if (this.subsys_positions[m.primary_production_subsystem]) {
+		n.x = this.subsys_positions[m.primary_production_subsystem][0];
+		n.y = this.subsys_positions[m.primary_production_subsystem][1];
+	}
+
+
+	/* else if (this.cached[m.id]) {
 		let c = this.cached[m.id];
 		n.x = c[0];
 		n.y = c[1];
@@ -408,6 +477,8 @@ MetabolicGraph.prototype.createMergedMetabolite = function(m, primary, pid) {
 	return n;
 }
 
+let ghostid = 0;
+
 MetabolicGraph.prototype.makePrimary = function(reaction, m1, m2, nodes, links, blocked, missing, scaled, data) {
 	/*let reactData = this.options.reactionData;
 	let data = (reactData && reactData.hasOwnProperty(reaction.id)) ? reactData[reaction.id] : 0
@@ -430,33 +501,64 @@ MetabolicGraph.prototype.makePrimary = function(reaction, m1, m2, nodes, links, 
 		n2.annotated = true;
 	}
 
+	let ghost = false;
 	// If the nodes are fixed and too far apart, create a ghost node
-	if (n1.fixed && n2.fixed) {
+	if (this.options.breakLong && n1.fixed && n2.fixed) {
 		var dx = n1.x - n2.x,
 	        dy = n1.y - n2.y,
 	        dr = Math.sqrt(dx * dx + dy * dy);
-		if (dr > 500) {
+		if (dr > 500) ghost = true;
+	}
+
+	//if (this.metaBreak[m1.id2] && m1.primary_consumption_subsystem != reaction.subsystem) {
+	if (m1.primary_production_subsystem != reaction.subsystem && missing) {
+		ghost = true;
+	}
+
+	if (ghost) {
+			let oldn1 = n1;
+
 			// Create ghost node for source
 			n1 = this.createMetabolite(n1.origin, true);
 			n1.colour = "#bbb";
 			n1.ghost = true;
 			n1.id += "_ghost_"+reaction.id+"_"+n2.id;
 
-			// Does this ghost node have a layout cache?
-			if (this.cached[n1.id]) {
-				n1.fixed = true;
-				n1.fx = this.cached[n1.id][0];
-				n1.fy = this.cached[n1.id][1];
-				n1.x = n1.fx;
-				n1.y = n1.fy;
+			if (nodes[n1.id]) {
+				n1 = nodes[n1.id];
 			} else {
-				n1.fixed = false;
-				delete n1.fx;
-				delete n2.fy;
+
+				// Does this ghost node have a layout cache?
+				if (this.cached[n1.id]) {
+					n1.fixed = true;
+					n1.fx = this.cached[n1.id][0];
+					n1.fy = this.cached[n1.id][1];
+					n1.x = n1.fx;
+					n1.y = n1.fy;
+				} else {
+					n1.fixed = false;
+					delete n1.fx;
+					delete n2.fy;
+				}
+				//if (nodes[n1.id]) console.error("EXISTING GHOST", nodes[n1.id]);
+				nodes[n1.id] = n1;
 			}
-			if (nodes[n1.id]) console.error("EXISTING GHOST", nodes[n1.id]);
-			nodes[n1.id] = n1;
-		}
+
+			if (this.options.showGhostLinks) {
+				oldn1.count++;
+				let l = {
+					id: "glink_"+ghostid++,
+					origin: reaction,
+					source: oldn1,
+					target: n1,
+					input: true,
+					val: 1,
+					ghost: true,
+					primary: true
+				};
+				links.push(l);
+			}
+		//}
 	}
 
 	n1.count++;
@@ -524,7 +626,7 @@ MetabolicGraph.prototype.makeSecondary = function(reaction, n_tert, m, nodes, li
 	//}
 
 	// If the nodes are fixed and too far apart, create a ghost node
-	if (n_tert.source.fixed && n_tert.target.fixed) {
+	if (n.fixed && (n_tert.source.fixed || n_tert.target.fixed)) {
 		var dx = n_tert.target.x - n.x,
 	        dy = n_tert.target.y - n.y,
 	        dr1 = Math.sqrt(dx * dx + dy * dy);
@@ -532,26 +634,47 @@ MetabolicGraph.prototype.makeSecondary = function(reaction, n_tert, m, nodes, li
 	        dy = n_tert.source.y - n.y;
 	        dr2 = Math.sqrt(dx * dx + dy * dy);
 		if (dr1 > 500 || dr2 > 500) {
+			let oldn = n;
 			// Create ghost node for source
 			n = this.createMetabolite(n.origin, true);
 			n.colour = "#bbb";
 			n.ghost = true;
 			n.id += "_ghost_"+n_tert.id;
 
-			// Does this ghost node have a layout cache?
-			if (this.cached[n.id]) {
-				n.fixed = true;
-				n.fx = this.cached[n.id][0];
-				n.fy = this.cached[n.id][1];
-				n.x = n.fx;
-				n.y = n.fy;
+			if (nodes[n.id]) {
+				n = nodes[n.id];
 			} else {
-				n.fixed = false;
-				delete n.fx;
-				delete n.fy;
+
+				// Does this ghost node have a layout cache?
+				if (this.cached[n.id]) {
+					n.fixed = true;
+					n.fx = this.cached[n.id][0];
+					n.fy = this.cached[n.id][1];
+					n.x = n.fx;
+					n.y = n.fy;
+				} else {
+					n.fixed = false;
+					delete n.fx;
+					delete n.fy;
+				}
+				//if (nodes[n.id]) console.error("EXISTING GHOST", nodes[n.id]);
+				nodes[n.id] = n;
 			}
-			if (nodes[n.id]) console.error("EXISTING GHOST", nodes[n.id]);
-			nodes[n.id] = n;
+
+			if (this.options.showGhostLinks) {
+				oldn.count++;
+				let l = {
+					id: "glink_"+ghostid++,
+					origin: reaction,
+					source: oldn,
+					target: n,
+					input: true,
+					val: 1,
+					ghost: true,
+					primary: true
+				};
+				links.push(l);
+			}
 		}
 	}
 
@@ -643,7 +766,7 @@ MetabolicGraph.prototype.setReactions = function(list) {
 
 	// Generate colours and positions for subsystems
 	this.subsys_colours = {};
-	let subsys_positions = {};
+	this.subsys_positions = {};
 	let subsyscount = {};
 	let sscount = 0;
 	let sscount2 = 0;
@@ -653,7 +776,7 @@ MetabolicGraph.prototype.setReactions = function(list) {
 	for (var x in subsystems) {
 		subsyscount[x] = 0;
 		this.subsys_colours[x] = selectColor(sscount2,sscount);
-		//subsys_positions[x] = rotate(1500,1500, 1900, 1500, ((2*Math.PI) / sscount) * sscount2);
+		this.subsys_positions[x] = rotate(1500,1500, 2500, 1500, (360.0 / sscount) * sscount2);
 		sscount2++;
 	}
 
@@ -701,8 +824,8 @@ MetabolicGraph.prototype.setReactions = function(list) {
 		if (missing && excluded[reactions[i].subsystem]) continue;
 
 		// Choose primary in and out metabolites
-		let [prim_in,tert_in] = this.choosePrimary(reactions[i].inputs);
-		let [prim_out,tert_out] = this.choosePrimary(reactions[i].outputs);
+		let [prim_in,tert_in] = this.choosePrimary(reactions[i].inputs, reactions[i], true);
+		let [prim_out,tert_out] = this.choosePrimary(reactions[i].outputs, reactions[i], false);
 
 		if (prim_in.length == 0 || prim_out.length == 0) continue;
 
@@ -711,17 +834,11 @@ MetabolicGraph.prototype.setReactions = function(list) {
 		let tertLenIn = (tert_in.length > 0) ? 1 : 0;
 		let tertLenOut = (tert_out.length > 0) ? 1 : 0;
 
-		// For each secondary, create links to each of the original primaries
-		// Only one of the links is visualised, but it must know the other links target
-		// Some secondaries and primary-level - use threshold. Still links like a secondary
-
-		// 1) Create primary link
-		// 2) For each secondary, create 2 links to each primary
-		//       - include ref to master link
-		//       - mark as level-2
-		// 3) For each tertiary, create 2 links to each primary
-		//       - mark as level-3
-		// Ignore tertiary for now!!!
+		// TODO Break links with duplicate metabolites for:
+		//  - when number of unique subsystem consumers > 2
+		//  - and when those consumers have a primary or secondary link
+		// Ought to sort initial subsystem clusters by most interconnected
+		// Should only break links with those least connected?
 
 		let master = this.makePrimary(reactions[i], prim_in[0], prim_out[0], nodes, links, blocked, missing, scaled, data);
 		if (!master) continue;
@@ -974,11 +1091,20 @@ function pathStyle(d) {
 	let alpha = (d.primary) ? 1.0 : 0.5;
 	if (d.invisible) return "stroke: none";
 
+	if (d.ghost) {
+		return "stroke-width: 1px; stroke: rgba(0,0,0,0.2); stroke-dasharray: 2,2;";
+	}
+
 	if (d.secondary || d.tertiary) {
 		if (d.missing) return "stroke: rgba(100,100,100,0.8); stroke-width: 1px;"; // stroke-dasharray: 2, 2;";
 		if (d.blocked) return "stroke: rgba(0,0,255,"+alpha+"); stroke-width: 1px";
-		if (d.val < 0) return "stroke-width: 1px; stroke: rgba(0,255,0,"+alpha+")";
-		return "stroke-width: 1px; stroke: rgba(255,0,0,"+alpha+")";
+		if (d.tertiary) {
+			if (d.val < 0) return "stroke-width: 1px; stroke: rgba(0,255,0,"+alpha+")";
+			return "stroke-width: 1px; stroke: rgba(255,0,0,"+alpha+")";
+		} else {
+			if (d.val < 0) return "stroke-width: "+Math.ceil(Math.abs(d.val))+"px; stroke: rgba(0,255,0,"+alpha+")";
+			return "stroke-width: "+Math.ceil(Math.abs(d.val))+"px; stroke: rgba(255,0,0,"+alpha+")";
+		}
 	}
 
 	//if (d.subsys && !d.sig) return "stroke: rgba(0,0,255,0.4); stroke-width: 1px;";
@@ -1119,7 +1245,11 @@ MetabolicGraph.prototype.graphData = function(data, dist, charge, cols) {
 		.gravity((this.options.noGravity) ? 0 : 0.01)
 		.linkDistance(dist) //60
 		.charge(n => (n.tertiary) ? charge : charge) // -300
-		.linkStrength(link => (link.tertiary) ? ((link.invisible) ? 1 : 2) : (link.secondary) ? 1 : (link.missing) ? 0.3 : (link.blocked) ? 0.5 : 1)
+		.linkStrength(link => {
+			return (link.ghost) ? 0 : ((link.tertiary) ? ((link.invisible) ? 1 : 2) :
+				(link.source.origin.producer_subsystems[link.origin.subsystem]) ? ((link.secondary) ? 2 :
+				 (link.target.origin.consumer_subsystems[link.origin.subsystem]) ? 4 : 3.5) : 1);
+		})
 		.on("tick", tick)
 		.start();
 	this.force = force;
@@ -1202,6 +1332,7 @@ MetabolicGraph.prototype.graphData = function(data, dist, charge, cols) {
 			me.unfixNode(d);
 		})		
 		.call(drag);
+	//this.node = node;
 
 	// add the nodes
 	/*node.append("circle")
@@ -1213,6 +1344,7 @@ MetabolicGraph.prototype.graphData = function(data, dist, charge, cols) {
 		.append("title").text(function(d) { return (d.type == "metabolite" && d.fullname) ? d.fullname : d.name; });*/
 
 	let r = node.append("rect");
+	this.node = r;
 
 	//if (!this.options.hideMetaboliteNames) {
 		// add the text 
@@ -1293,7 +1425,15 @@ MetabolicGraph.prototype.graphData = function(data, dist, charge, cols) {
 		}
 
 		path.attr("d", function(d) {
-			if (d.secondary) {
+			d.element = this;
+			if (d.target === d.source) {
+				return "M" + 
+					(d.source.x-10) + "," + 
+					d.source.y + "A" + 
+					40 + "," + 40 + " 0 1," + ((d.input) ? "0" : "1") + " " + 
+					(d.target.x+10) + "," + 
+					d.target.y;
+			} else if (d.secondary) {
 				let dx2 = d.target.x - d.source.x,
 					dy2 = d.target.y - d.source.y,
 					dr2 = Math.sqrt(dx2 * dx2 + dy2 * dy2)*0.8;
@@ -1351,7 +1491,7 @@ MetabolicGraph.prototype.graphData = function(data, dist, charge, cols) {
 		});
 
 		node
-		    .attr("transform", function(d) { 
+		    .attr("transform", function(d) { //d.element = this; 
 	  	    return (isNaN(d.x)) ? "" : "translate(" + d.x + "," + d.y + ")"; });
 	}
 }
