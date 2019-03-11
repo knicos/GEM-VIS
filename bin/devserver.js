@@ -11,7 +11,7 @@ var serveStatic = require('serve-static');
 var httpProxy = require('http-proxy');
 
 var proxy = httpProxy.createProxyServer({});
-var serve = serveStatic('./build');
+var serve = serveStatic('./');
 
 var port = 8000;
 

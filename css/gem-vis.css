@@ -126,3 +126,12 @@ hr {
 	width: 100%;
 }
 
+div#menu {
+	position: fixed;
+	top: 0;
+	right: 0;
+	height: 32px;
+	width: 50%;
+	background: #eeeeee;
+	padding: 5px;
+}

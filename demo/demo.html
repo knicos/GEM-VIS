@@ -21,14 +21,33 @@ window.onload = function() {
 		mg = new MetabolicGraph(document.getElementById("graph"), model);
 		mg.setReactions(model.subsystems["Citrate cycle (TCA cycle)"].reactions);
 	});*/
+
 	let dialog = new GEMVIS.Dialog(document.getElementById("dialog"), function(d) {
 		console.log("DIALOG", d);
 		mg = new GEMVIS.graph(document.getElementById("graph"), d.model, d);
 		mg.setReactions(d.reactions);
+
+		// Make a menu work
+		document.getElementById("menu-unfix").addEventListener('click', ()=>{
+			mg.clickmode = "unfix";
+		});
+
+		document.getElementById("menu-remove").addEventListener('click', ()=>{
+			mg.clickmode = "remove";
+		});
+
+		document.getElementById("menu-expand").addEventListener('click', ()=>{
+			mg.clickmode = "expand";
+		});
 	});
 }
 </script>
 <div id="dialog"></div>
 <div id="graph"></div>
+<div id="menu">
+	<button id="menu-unfix">Unfix</button>
+	<button id="menu-remove">Remove</button>
+	<button id="menu-expand">Expand</button>
+</div>
 </body>
 </html>

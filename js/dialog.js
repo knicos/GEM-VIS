@@ -73,7 +73,11 @@ Dialog.prototype.generateDataFromCSV = function() {
 			let r = this.model.genes[l];
 			if (!r) continue;
 			for (var j=0; j<r.length; j++) {
-				data[r[j].id] = v;
+				if (data.hasOwnProperty(r[j].id)) {
+					if (Math.abs(v) > Math.abs(data[r[j].id])) data[r[j].id] = v;
+				} else {
+					data[r[j].id] = v;
+				}
 			}
 		} else {
 			data[l] = v;
@@ -113,7 +117,7 @@ Dialog.prototype.modelSelector = function() {
 
 	let me = this;
 	select.onchange = function(e) {
-		SBML.fromURL(select.value, function(model) {
+		GEM.fromUrl(select.value, function(model) {
 			me.model = model;
 			console.log(model);
 
@@ -167,6 +171,19 @@ function getSelectValues(select) {
   return result;
 }
 
+function unique(a) {
+	let t = {};
+	let r = [];
+	for (var i=0; i<a.length; i++) {
+		if (a[i] == null) continue;
+		if (!t.hasOwnProperty(a[i].id)) {
+			t[a[i].id] = true;
+			r.push(a[i]);
+		}
+	}
+	return r;
+}
+
 Dialog.prototype.reactionSelector = function() {
 	let me = this;
 
@@ -187,9 +204,9 @@ Dialog.prototype.reactionSelector = function() {
 
 		for (var i=0; i<values.length; i++) {
 			if (values[i] == "all") {
-				me.reaction_list.push.apply(me.reaction_list,me.model.reactions);
+				me.reaction_list.push.apply(me.reaction_list,me.model.json.reactions);
 			} else if (values[i] == "allenz") {
-				me.reaction_list.push.apply(me.reaction_list,me.model.reactions.filter(a => a.ec != ""));
+				me.reaction_list.push.apply(me.reaction_list,me.model.json.reactions.filter(a => a.ec != ""));
 			} else if (values[i] == "SKIP") {
 				// Nothing
 			} else if (values[i] == "allanno") {
@@ -202,9 +219,11 @@ Dialog.prototype.reactionSelector = function() {
 				}
 				console.log(rl);
 				me.reaction_list.push.apply(me.reaction_list,rl);
-			} else if (values[i] != "alldata") {
-				me.reaction_list.push.apply(me.reaction_list,me.model.subsystems[values[i]].reactions);
-			} else {
+			} else if (values[i].startsWith("S-")) {
+				me.reaction_list.push.apply(me.reaction_list,me.model.subsystems[values[i].substring(2)]);
+			} else if (values[i].startsWith("E-")) {
+				me.reaction_list.push.apply(me.reaction_list,me.model.enzymes[values[i].substring(2)]);
+			} else if (values[i] == "alldata") {
 				var rl = [];
 				if (me.data) {
 					for (var x in me.data) {
@@ -217,6 +236,8 @@ Dialog.prototype.reactionSelector = function() {
 			}
 		}
 
+		// Must ensure reaction list is unique
+		me.reaction_list = unique(me.reaction_list);
 		console.log("REACTIONS", me.reaction_list);
 	}
 }
@@ -260,7 +281,20 @@ Dialog.prototype.updateReactions = function(model) {
 	for (var x in model.subsystems) {
 		let opt = document.createElement("option");
 		opt.textContent = x;
-		opt.value = x;
+		opt.value = "S-"+x;
+		this.subsystem_select.appendChild(opt);
+	}
+
+	allopt = document.createElement("option");
+	allopt.textContent = "----------";
+	allopt.value = "SKIP";
+	this.subsystem_select.appendChild(allopt);
+
+	let ezs = Object.keys(model.enzymes).sort();
+	for (var x of ezs) {
+		let opt = document.createElement("option");
+		opt.textContent = "EC "+x;
+		opt.value = "E-"+x;
 		this.subsystem_select.appendChild(opt);
 	}
 }
@@ -445,10 +479,13 @@ Dialog.prototype.addOptions = function() {
 	outer.className = "options-list";
 
 	let opts = {
+		"connect": 0,
 		"skipMissing": false,
 		"hideMetaboliteNames": false,
 		"hideSpecials": true,
 		"showReactionNames": false,
+		"showECNumbers": false,
+		"showDataValue": false,
 		//"removeIsolated": true,
 		//"subsystemCluster": false,
 		"hideZero": false,
@@ -535,6 +572,10 @@ Dialog.prototype.saveToSVG = function() {
 	me.element.appendChild(dlink);
 }
 
+Dialog.prototype.connected = function(rs, n) {
+	// Find primary connections in each direction and include n of those...
+}
+
 Dialog.prototype.buttons = function() {
 	let me = this;	
 	let go = document.createElement("button");
@@ -554,6 +595,11 @@ Dialog.prototype.buttons = function() {
 				(me.optelements[i].getAttribute("type") == "checkbox")
 				? me.optelements[i].checked
 				: me.optelements[i].value;
+		}
+
+		// Finally process options
+		if (opts["fullyConnect"]) {
+			opts.reactions = me.fullyConnect(opts.reactions);
 		}
 
 		me.cb(opts);
